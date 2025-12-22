@@ -94,7 +94,10 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-amber-50/95 border-2 border-amber-900/30 max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent 
+        className="bg-amber-50/95 border-2 border-amber-900/30 max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-y-auto"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <div className="flex items-center gap-2">
             <Wine className="w-5 h-5 text-purple-900" />
