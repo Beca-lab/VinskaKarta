@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { Slider } from "./ui/slider";
@@ -14,6 +14,15 @@ interface Wine {
   type: string;
   vintage: string;
   region: string;
+  rating?: number;
+  notes?: string;
+  scores?: {
+    appearance: number;
+    aroma: number;
+    taste: number;
+    finish: number;
+    overall: number;
+  };
 }
 
 interface GradingModalProps {
@@ -47,8 +56,8 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
     region: "",
   });
 
-  // Update wine info when wine prop changes
-  useState(() => {
+  // Update wine info and existing data when wine prop changes
+  useEffect(() => {
     if (wine) {
       setWineInfo({
         name: wine.name,
@@ -56,8 +65,20 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
         vintage: wine.vintage,
         region: wine.region,
       });
+      
+      // Preserve existing notes
+      setNotes(wine.notes || "");
+      
+      // Load existing scores if available, otherwise use defaults
+      setScores(wine.scores || {
+        appearance: 50,
+        aroma: 50,
+        taste: 50,
+        finish: 50,
+        overall: 50,
+      });
     }
-  });
+  }, [wine]);
 
   const handleSubmit = () => {
     if (wine) {
@@ -81,16 +102,6 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
     { key: "finish" as keyof GradingScores, label: "Završetak", description: "Posleukus i trajanje" },
     { key: "overall" as keyof GradingScores, label: "Ukupno", description: "Opšti utisak" },
   ];
-
-  // Update local state when wine changes
-  if (wine && wineInfo.name !== wine.name) {
-    setWineInfo({
-      name: wine.name,
-      type: wine.type,
-      vintage: wine.vintage,
-      region: wine.region,
-    });
-  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

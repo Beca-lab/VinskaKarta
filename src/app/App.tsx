@@ -14,6 +14,13 @@ interface Wine {
   region: string;
   rating?: number;
   notes?: string;
+  scores?: {
+    appearance: number;
+    aroma: number;
+    taste: number;
+    finish: number;
+    overall: number;
+  };
 }
 
 const STORAGE_KEY = 'wine-app-data';
@@ -106,7 +113,7 @@ export default function App() {
     
     setWines(wines.map((wine) => 
       wine.id === wineId 
-        ? { ...wine, ...updatedWineInfo, rating: totalScore, notes } 
+        ? { ...wine, ...updatedWineInfo, rating: totalScore, notes, scores } 
         : wine
     ));
   };
