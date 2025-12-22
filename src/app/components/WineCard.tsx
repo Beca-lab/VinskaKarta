@@ -52,13 +52,13 @@ export function WineCard({ name, type, vintage, region, rating, onRate, onDelete
           <div className="flex items-end justify-between gap-2">
             <p className="text-sm text-slate-600 flex-1">{region}</p>
             {rating !== undefined ? (
-              <div className="flex items-center gap-1.5 bg-gradient-to-br from-amber-100 to-amber-200 border border-amber-600 rounded-md px-3 py-1.5 shadow-sm flex-shrink-0">
-                <Star className="w-4 h-4 fill-amber-600 text-amber-600" />
-                <span className="text-lg font-bold text-amber-900">{rating.toFixed(1)}</span>
+              <div className="flex items-center gap-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-full px-2 py-1 shadow-md flex-shrink-0">
+                <Star className="w-3 h-3 fill-white text-white" />
+                <span className="text-xs font-semibold">{rating.toFixed(1)}</span>
               </div>
             ) : (
-              <div className="flex items-center justify-center bg-slate-100 border border-slate-300 rounded-md px-2 py-1 flex-shrink-0">
-                <span className="text-[10px] text-slate-500 whitespace-nowrap">Nije ocenjeno</span>
+              <div className="flex items-center justify-center bg-gray-200 text-gray-500 rounded-full px-2 py-1 flex-shrink-0">
+                <span className="text-[9px] font-medium">Nije ocenjeno</span>
               </div>
             )}
           </div>
