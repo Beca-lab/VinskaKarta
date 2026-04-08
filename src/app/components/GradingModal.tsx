@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { Slider } from "./ui/slider";
@@ -6,24 +6,34 @@ import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Wine } from "lucide-react";
+import {
+  AROMA_CATEGORIES,
+  buildAromaLabelIndex,
+  DEFAULT_AROMA_CATEGORY_ID,
+  type AromaId,
+} from "../../data/aromas";
+import { AromaSelector } from "./aroma/AromaSelector";
 
 interface Wine {
   id: number;
   name: string;
-  type: string;
-  vintage: string;
-  region: string;
-  rating?: number;
+  type?: string;
+  vintage?: string;
+  region?: string;
+  composition?: "Cisto" | "Kupaza";
+  variety?: string;
+  blend?: Array<{ grape: string; percent: number }>;
+  scores?: GradingScores;
+  aromas?: AromaId[];
   notes?: string;
-  scores?: {
-    appearance: number;
-    aroma: number;
-    taste: number;
-    finish: number;
-    overall: number;
-  };
 }
+
+type BlendComponentInput = {
+  grape: string;
+  percent: string;
+};
 
 interface GradingModalProps {
   wine: Wine | null;
@@ -34,21 +44,72 @@ interface GradingModalProps {
 
 export interface GradingScores {
   appearance: number;
-  aroma: number;
   taste: number;
   finish: number;
   overall: number;
 }
 
 export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProps) {
+  const defaultScores: GradingScores = {
+    appearance: 50,
+    taste: 50,
+    finish: 50,
+    overall: 50,
+  };
+
+  const [composition, setComposition] = useState<"" | "Cisto" | "Kupaza">("");
+  const [variety, setVariety] = useState("");
+  const [blend, setBlend] = useState<BlendComponentInput[]>([
+    { grape: "", percent: "" },
+    { grape: "", percent: "" },
+  ]);
+
+  const parsePercent = (value: string) => {
+    if (value.trim() === "") return 0;
+    const n = Number(value);
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
+
+  const getBlendTotal = (items: BlendComponentInput[]) =>
+    items.reduce((sum, item) => sum + clamp(parsePercent(item.percent), 0, 100), 0);
+
+  const normalizeBlendAfterPercentChange = (items: BlendComponentInput[], index: number) => {
+    const next = items.map((x) => ({ ...x }));
+
+    if (next.length === 2) {
+      const p = clamp(parsePercent(next[index].percent), 0, 100);
+      next[index].percent = String(p);
+      const otherIndex = index === 0 ? 1 : 0;
+      next[otherIndex].percent = String(clamp(100 - p, 0, 100));
+      return next;
+    }
+
+    const sumOthers = next.reduce((sum, item, i) => {
+      if (i === index) return sum;
+      return sum + clamp(parsePercent(item.percent), 0, 100);
+    }, 0);
+
+    const remaining = clamp(100 - sumOthers, 0, 100);
+    const p = clamp(parsePercent(next[index].percent), 0, remaining);
+    next[index].percent = next[index].percent.trim() === "" ? "" : String(p);
+    return next;
+  };
+
   const [scores, setScores] = useState<GradingScores>({
     appearance: 50,
-    aroma: 50,
     taste: 50,
     finish: 50,
     overall: 50,
   });
+
+  const [selectedCategory, setSelectedCategory] = useState<string>(DEFAULT_AROMA_CATEGORY_ID);
+  const [selectedAromas, setSelectedAromas] = useState<AromaId[]>([]);
+  const aromaLabels = useMemo(() => buildAromaLabelIndex(AROMA_CATEGORIES), []);
+
   const [notes, setNotes] = useState("");
+
   const [wineInfo, setWineInfo] = useState({
     name: "",
     type: "",
@@ -56,48 +117,66 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
     region: "",
   });
 
-  // Update wine info and existing data when wine prop changes
   useEffect(() => {
-    if (wine) {
-      setWineInfo({
-        name: wine.name,
-        type: wine.type,
-        vintage: wine.vintage,
-        region: wine.region,
-      });
-      
-      // Preserve existing notes
-      setNotes(wine.notes || "");
-      
-      // Load existing scores if available, otherwise use defaults
-      setScores(wine.scores || {
-        appearance: 50,
-        aroma: 50,
-        taste: 50,
-        finish: 50,
-        overall: 50,
-      });
+    if (!wine) return;
+
+    setWineInfo({
+      name: wine.name,
+      type: wine.type ?? "",
+      vintage: wine.vintage ?? "",
+      region: wine.region ?? "",
+    });
+    setScores(wine.scores ?? defaultScores);
+    setNotes(wine.notes ?? "");
+
+    setSelectedCategory(DEFAULT_AROMA_CATEGORY_ID);
+    setSelectedAromas(wine.aromas ?? []);
+
+    setComposition(wine.composition ?? "");
+    setVariety(wine.variety ?? "");
+    if (wine.blend && wine.blend.length > 0) {
+      setBlend(wine.blend.map((b) => ({ grape: b.grape ?? "", percent: String(b.percent ?? "") })));
+    } else {
+      setBlend([
+        { grape: "", percent: "" },
+        { grape: "", percent: "" },
+      ]);
     }
-  }, [wine]);
+  }, [wine?.id, open]);
+
+  const toggleAroma = (id: AromaId) => {
+    setSelectedAromas((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
 
   const handleSubmit = () => {
     if (wine) {
-      onSubmit(wine.id, scores, notes, wineInfo);
-      setScores({
-        appearance: 50,
-        aroma: 50,
-        taste: 50,
-        finish: 50,
-        overall: 50,
-      });
-      setNotes("");
+      const compositionValue = composition === "" ? undefined : composition;
+      const updated: Partial<Wine> = {
+        name: wineInfo.name,
+        type: wineInfo.type.trim() ? wineInfo.type : undefined,
+        vintage: wineInfo.vintage.trim() ? wineInfo.vintage : undefined,
+        region: wineInfo.region.trim() ? wineInfo.region : undefined,
+        composition: compositionValue,
+        variety: compositionValue === "Cisto" && variety.trim() ? variety.trim() : undefined,
+        blend:
+          compositionValue === "Kupaza"
+            ? blend
+                .filter((b) => b.grape.trim() !== "")
+                .map((b) => ({
+                  grape: b.grape.trim(),
+                  percent: clamp(parsePercent(b.percent), 0, 100),
+                }))
+            : undefined,
+        aromas: selectedAromas,
+      };
+
+      onSubmit(wine.id, scores, notes, updated);
       onClose();
     }
   };
 
   const categories = [
     { key: "appearance" as keyof GradingScores, label: "Izgled", description: "Bistrina, boja i viskoznost" },
-    { key: "aroma" as keyof GradingScores, label: "Aroma", description: "Miris, buket i intenzitet" },
     { key: "taste" as keyof GradingScores, label: "Ukus", description: "Aroma, balans i kompleksnost" },
     { key: "finish" as keyof GradingScores, label: "Završetak", description: "Posleukus i trajanje" },
     { key: "overall" as keyof GradingScores, label: "Ukupno", description: "Opšti utisak" },
@@ -105,9 +184,9 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent 
+      <DialogContent
         className="bg-amber-50/95 border-2 border-amber-900/30 max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-y-auto"
-        onOpenAutoFocus={(e) => e.preventDefault()}
+        onOpenAutoFocus={(e: Event) => e.preventDefault()}
       >
         <DialogHeader>
           <div className="flex items-center gap-2">
@@ -119,13 +198,15 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
           {/* Wine Information Section */}
           <div className="space-y-4 pb-4 border-b border-amber-900/20">
             <h3 className="font-semibold text-amber-950">Informacije o Vinu</h3>
-            
+
             <div className="space-y-2">
               <Label htmlFor="edit-name">Ime Vina</Label>
               <Input
                 id="edit-name"
                 value={wineInfo.name}
-                onChange={(e) => setWineInfo({ ...wineInfo, name: e.target.value })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setWineInfo({ ...wineInfo, name: e.target.value })
+                }
                 className="bg-white/80"
               />
             </div>
@@ -134,7 +215,7 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
               <Label htmlFor="edit-type">Tip</Label>
               <Select
                 value={wineInfo.type}
-                onValueChange={(value) => setWineInfo({ ...wineInfo, type: value })}
+                onValueChange={(value: string) => setWineInfo({ ...wineInfo, type: value })}
               >
                 <SelectTrigger className="bg-white/80">
                   <SelectValue />
@@ -151,12 +232,111 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
             </div>
 
             <div className="space-y-2">
+              <Label>Sastav</Label>
+              <RadioGroup
+                value={composition}
+                onValueChange={(value: string) => setComposition(value as "" | "Cisto" | "Kupaza")}
+                className="grid grid-cols-1 gap-2"
+              >
+                <Label className="flex items-center gap-2 rounded-md border border-amber-900/20 bg-white/70 px-3 py-2">
+                  <RadioGroupItem value="" />
+                  Nije odabrano
+                </Label>
+                <Label className="flex items-center gap-2 rounded-md border border-amber-900/20 bg-white/70 px-3 py-2">
+                  <RadioGroupItem value="Cisto" />
+                  Čisto
+                </Label>
+                <Label className="flex items-center gap-2 rounded-md border border-amber-900/20 bg-white/70 px-3 py-2">
+                  <RadioGroupItem value="Kupaza" />
+                  Kupaža
+                </Label>
+              </RadioGroup>
+            </div>
+
+            {composition === "Cisto" ? (
+              <div className="space-y-2">
+                <Label htmlFor="edit-variety">Vrsta vina</Label>
+                <Input
+                  id="edit-variety"
+                  placeholder="npr. Cabernet Sauvignon"
+                  value={variety}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setVariety(e.target.value)}
+                  className="bg-white/80"
+                />
+              </div>
+            ) : composition === "Kupaza" ? (
+              <div className="space-y-3">
+                <Label>Kupaža (grožđe i procenat)</Label>
+
+                <div className="space-y-2">
+                  {blend.map((item, index) => (
+                    <div key={index} className="grid grid-cols-[1fr_90px_36px] gap-2">
+                      <Input
+                        placeholder="npr. Merlot"
+                        value={item.grape}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                          const next = blend.map((x) => ({ ...x }));
+                          next[index].grape = e.target.value;
+                          setBlend(next);
+                        }}
+                        className="bg-white/80"
+                      />
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="1"
+                        placeholder="%"
+                        value={item.percent}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                          const next = blend.map((x) => ({ ...x }));
+                          next[index].percent = e.target.value;
+                          setBlend(normalizeBlendAfterPercentChange(next, index));
+                        }}
+                        className="bg-white/80"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          if (blend.length <= 2) return;
+                          const next = blend.filter((_, i) => i !== index);
+                          setBlend(next.length === 2 ? normalizeBlendAfterPercentChange(next, 0) : next);
+                        }}
+                        className="h-9 px-0"
+                        disabled={blend.length <= 2}
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="text-xs text-slate-600">
+                    Ukupno: {Math.round(getBlendTotal(blend) * 10) / 10}% (maks 100%)
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setBlend([...blend, { grape: "", percent: "" }])}
+                    className="h-9"
+                  >
+                    Dodaj
+                  </Button>
+                </div>
+              </div>
+            ) : null}
+
+            <div className="space-y-2">
               <Label htmlFor="edit-vintage">Godina</Label>
               <Input
                 id="edit-vintage"
                 type="number"
                 value={wineInfo.vintage}
-                onChange={(e) => setWineInfo({ ...wineInfo, vintage: e.target.value })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setWineInfo({ ...wineInfo, vintage: e.target.value })
+                }
                 className="bg-white/80"
                 min="1900"
                 max={new Date().getFullYear()}
@@ -168,7 +348,9 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
               <Input
                 id="edit-region"
                 value={wineInfo.region}
-                onChange={(e) => setWineInfo({ ...wineInfo, region: e.target.value })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setWineInfo({ ...wineInfo, region: e.target.value })
+                }
                 className="bg-white/80"
               />
             </div>
@@ -177,6 +359,16 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
           {/* Grading Section */}
           <div className="space-y-4">
             <h3 className="font-semibold text-amber-950">Ocenjivanje</h3>
+
+            <AromaSelector
+              categories={AROMA_CATEGORIES}
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+              selectedAromas={selectedAromas}
+              onToggleAroma={toggleAroma}
+              aromaLabels={aromaLabels}
+            />
+
             {categories.map((category) => (
               <div key={category.key} className="space-y-2">
                 <div>
@@ -186,7 +378,7 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
                 <div className="flex items-center gap-4">
                   <Slider
                     value={[scores[category.key]]}
-                    onValueChange={(value) =>
+                    onValueChange={(value: number[]) =>
                       setScores({ ...scores, [category.key]: value[0] })
                     }
                     max={100}
@@ -200,14 +392,14 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
               </div>
             ))}
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="notes">Beleške Degustacije</Label>
             <Textarea
               id="notes"
               placeholder="Dodajte vaše beleške ovde..."
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setNotes(e.target.value)}
               className="min-h-[100px] bg-white/80"
             />
           </div>

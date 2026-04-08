@@ -1,26 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { WineCard } from "./components/WineCard";
 import { GradingModal, GradingScores } from "./components/GradingModal";
 import { AddWineModal, NewWine } from "./components/AddWineModal";
 import { Wine, Award, Plus, ListFilter } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
+import { AROMA_CATEGORIES, buildAromaLabelIndex, type AromaId } from "../data/aromas";
 
 interface Wine {
   id: number;
   name: string;
-  type: string;
-  vintage: string;
-  region: string;
+  type?: string;
+  vintage?: string;
+  region?: string;
+  composition?: "Cisto" | "Kupaza";
+  variety?: string;
+  blend?: Array<{ grape: string; percent: number }>;
+  scores?: GradingScores;
+  aromas?: AromaId[];
   rating?: number;
   notes?: string;
-  scores?: {
-    appearance: number;
-    aroma: number;
-    taste: number;
-    finish: number;
-    overall: number;
-  };
 }
 
 const STORAGE_KEY = 'wine-app-data';
@@ -30,7 +29,10 @@ const loadWinesFromStorage = (): Wine[] => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed)) {
+        return parsed as Wine[];
+      }
     }
   } catch (error) {
     console.error('Error loading wines from storage:', error);
@@ -91,7 +93,10 @@ export default function App() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [regionFilter, setRegionFilter] = useState<string>("all");
+  const [aromaFilter, setAromaFilter] = useState<AromaId | "all">("all");
   const [sortOrder, setSortOrder] = useState<string>("newest");
+
+  const aromaLabels = useMemo(() => buildAromaLabelIndex(AROMA_CATEGORIES), []);
 
   // Save wines to localStorage whenever they change
   useEffect(() => {
@@ -109,19 +114,23 @@ export default function App() {
 
   const handleSubmitGrade = (wineId: number, scores: GradingScores, notes: string, updatedWineInfo: Partial<Wine>) => {
     const totalScore =
-      (scores.appearance + scores.aroma + scores.taste + scores.finish + scores.overall) / 5;
+      (scores.appearance + scores.taste + scores.finish + scores.overall) / 4;
     
     setWines(wines.map((wine) => 
       wine.id === wineId 
-        ? { ...wine, ...updatedWineInfo, rating: totalScore, notes, scores } 
+        ? { ...wine, ...updatedWineInfo, scores, rating: totalScore, notes } 
         : wine
     ));
   };
 
   const handleAddWine = (newWine: NewWine) => {
+    const rating = newWine.scores
+      ? (newWine.scores.appearance + newWine.scores.taste + newWine.scores.finish + newWine.scores.overall) / 4
+      : undefined;
     const wine: Wine = {
       id: wines.length > 0 ? Math.max(...wines.map(w => w.id)) + 1 : 1,
       ...newWine,
+      rating,
     };
     setWines([...wines, wine]);
   };
@@ -130,16 +139,32 @@ export default function App() {
     setWines(wines.filter(wine => wine.id !== wineId));
   };
 
-  // Get unique types and regions for filters
-  const wineTypes = ["all", ...Array.from(new Set(wines.map(w => w.type)))];
-  const wineRegions = ["all", ...Array.from(new Set(wines.map(w => w.region)))];
+  // Get unique types, regions and aromas for filters
+  const wineTypes = [
+    "all",
+    ...Array.from(new Set(wines.map(w => w.type).filter((v): v is string => Boolean(v && v.trim())))),
+  ];
+  const wineRegions = [
+    "all",
+    ...Array.from(new Set(wines.map(w => w.region).filter((v): v is string => Boolean(v && v.trim())))),
+  ];
+  const wineAromas = useMemo(() => {
+    const allAromas = new Set<AromaId>();
+    wines.forEach(wine => {
+      if (wine.aromas && wine.aromas.length > 0) {
+        wine.aromas.forEach(aroma => allAromas.add(aroma));
+      }
+    });
+    return ["all" as const, ...Array.from(allAromas)];
+  }, [wines]);
 
   // Filter and sort wines
   const filteredAndSortedWines = wines
     .filter(wine => {
       const typeMatch = typeFilter === "all" || wine.type === typeFilter;
       const regionMatch = regionFilter === "all" || wine.region === regionFilter;
-      return typeMatch && regionMatch;
+      const aromaMatch = aromaFilter === "all" || (wine.aromas && wine.aromas.includes(aromaFilter));
+      return typeMatch && regionMatch && aromaMatch;
     })
     .sort((a, b) => {
       if (sortOrder === "newest") {
@@ -337,6 +362,22 @@ export default function App() {
                   </div>
                   
                   <div>
+                    <label className="text-xs sm:text-sm text-slate-600 mb-1 block">Aroma</label>
+                    <Select value={aromaFilter} onValueChange={(value) => setAromaFilter(value as AromaId | "all")}>
+                      <SelectTrigger className="bg-white/80 h-10 sm:h-11">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {wineAromas.map(aroma => (
+                          <SelectItem key={aroma} value={aroma}>
+                            {aroma === "all" ? "Sve Arome" : (aromaLabels[aroma] || aroma)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
                     <label className="text-xs sm:text-sm text-slate-600 mb-1 block">Sortiraj Po</label>
                     <Select value={sortOrder} onValueChange={setSortOrder}>
                       <SelectTrigger className="bg-white/80 h-10 sm:h-11">
@@ -373,6 +414,10 @@ export default function App() {
                       type={wine.type}
                       vintage={wine.vintage}
                       region={wine.region}
+                      composition={wine.composition}
+                      variety={wine.variety}
+                      blend={wine.blend}
+                      aromas={wine.aromas}
                       rating={wine.rating}
                       onRate={() => handleRateWine(wine)}
                       onDelete={() => handleDeleteWine(wine.id)}
