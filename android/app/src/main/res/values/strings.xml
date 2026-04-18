@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">Ocenjivanje Vina</string>
-    <string name="title_activity_main">Ocenjivanje Vina</string>
-    <string name="package_name">com.wineapp.ocenjivanje</string>
-    <string name="custom_url_scheme">com.wineapp.ocenjivanje</string>
-</resources>
