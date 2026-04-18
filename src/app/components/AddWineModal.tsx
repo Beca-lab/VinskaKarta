@@ -475,46 +475,55 @@ export function AddWineModal({ open, onClose, onSubmit }: AddWineModalProps) {
                     <div className="space-y-2">
                       <h4 className="font-medium text-sm text-amber-950">Izgled</h4>
                       <div className="grid grid-cols-2 gap-2">
-                        <Select
-                          value={detailedEval.appearance.clarity}
-                          onValueChange={(value) => setDetailedEval({ ...detailedEval, appearance: { ...detailedEval.appearance, clarity: value as any } })}
-                        >
-                          <SelectTrigger className="bg-white/80 text-xs">
-                            <SelectValue placeholder="Bistrina" />
-                          </SelectTrigger>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Bistrina</Label>
+                          <Select
+                            value={detailedEval.appearance.clarity}
+                            onValueChange={(value) => setDetailedEval({ ...detailedEval, appearance: { ...detailedEval.appearance, clarity: value as any } })}
+                          >
+                            <SelectTrigger className="bg-white/80 text-xs">
+                              <SelectValue placeholder="Izaberite" />
+                            </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="Bistro">Bistro</SelectItem>
-                            <SelectItem value="Slabije">Slabiji sjaj</SelectItem>
+                            <SelectItem value="Slabije">Slabije</SelectItem>
                             <SelectItem value="Mutno">Mutno</SelectItem>
                           </SelectContent>
-                        </Select>
+                          </Select>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Intenzitet</Label>
+                          <Select
+                            value={detailedEval.appearance.intensity}
+                            onValueChange={(value) => setDetailedEval({ ...detailedEval, appearance: { ...detailedEval.appearance, intensity: value as any } })}
+                          >
+                            <SelectTrigger className="bg-white/80 text-xs">
+                              <SelectValue placeholder="Izaberite" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Nizak">Nizak</SelectItem>
+                              <SelectItem value="Srednji">Srednji</SelectItem>
+                              <SelectItem value="Visok">Visok</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Viskoznost</Label>
                         <Select
-                          value={detailedEval.appearance.intensity}
-                          onValueChange={(value) => setDetailedEval({ ...detailedEval, appearance: { ...detailedEval.appearance, intensity: value as any } })}
+                          value={detailedEval.appearance.viscosity}
+                          onValueChange={(value) => setDetailedEval({ ...detailedEval, appearance: { ...detailedEval.appearance, viscosity: value as any } })}
                         >
                           <SelectTrigger className="bg-white/80 text-xs">
-                            <SelectValue placeholder="Intenzitet" />
+                            <SelectValue placeholder="Izaberite" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Nizak">Nizak</SelectItem>
-                            <SelectItem value="Srednji">Srednji</SelectItem>
-                            <SelectItem value="Visok">Visok</SelectItem>
+                            <SelectItem value="Kratka">Kratka</SelectItem>
+                            <SelectItem value="Srednja">Srednja</SelectItem>
+                            <SelectItem value="Duga">Duga</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
-                      <Select
-                        value={detailedEval.appearance.viscosity}
-                        onValueChange={(value) => setDetailedEval({ ...detailedEval, appearance: { ...detailedEval.appearance, viscosity: value as any } })}
-                      >
-                        <SelectTrigger className="bg-white/80 text-xs">
-                          <SelectValue placeholder="Viskoznost" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Kratka">Kratka</SelectItem>
-                          <SelectItem value="Srednja">Srednja</SelectItem>
-                          <SelectItem value="Duga">Duga</SelectItem>
-                        </SelectContent>
-                      </Select>
                       <Input
                         placeholder="Boja (opis)"
                         value={detailedEval.appearance.color}
@@ -527,107 +536,128 @@ export function AddWineModal({ open, onClose, onSubmit }: AddWineModalProps) {
                     <div className="space-y-2">
                       <h4 className="font-medium text-sm text-amber-950">Miris</h4>
                       <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-1">
+                          <Label className="text-xs">Stanje</Label>
+                          <Select
+                            value={detailedEval.aroma.condition}
+                            onValueChange={(value) => setDetailedEval({ ...detailedEval, aroma: { ...detailedEval.aroma, condition: value as any } })}
+                          >
+                            <SelectTrigger className="bg-white/80 text-xs">
+                              <SelectValue placeholder="Izaberite" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Ispravno">Ispravno</SelectItem>
+                              <SelectItem value="Neispravno">Neispravno</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Intenzitet</Label>
+                          <Select
+                            value={detailedEval.aroma.intensity}
+                            onValueChange={(value) => setDetailedEval({ ...detailedEval, aroma: { ...detailedEval.aroma, intensity: value as any } })}
+                          >
+                            <SelectTrigger className="bg-white/80 text-xs">
+                              <SelectValue placeholder="Izaberite" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Nizak">Nizak</SelectItem>
+                              <SelectItem value="Srednji">Srednji</SelectItem>
+                              <SelectItem value="Visok">Visok</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Razvoj</Label>
                         <Select
-                          value={detailedEval.aroma.condition}
-                          onValueChange={(value) => setDetailedEval({ ...detailedEval, aroma: { ...detailedEval.aroma, condition: value as any } })}
+                          value={detailedEval.aroma.development}
+                          onValueChange={(value) => setDetailedEval({ ...detailedEval, aroma: { ...detailedEval.aroma, development: value as any } })}
                         >
                           <SelectTrigger className="bg-white/80 text-xs">
-                            <SelectValue placeholder="Stanje" />
+                            <SelectValue placeholder="Izaberite" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Ispravno">Ispravno</SelectItem>
-                            <SelectItem value="Neispravno">Nepravilno</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Select
-                          value={detailedEval.aroma.intensity}
-                          onValueChange={(value) => setDetailedEval({ ...detailedEval, aroma: { ...detailedEval.aroma, intensity: value as any } })}
-                        >
-                          <SelectTrigger className="bg-white/80 text-xs">
-                            <SelectValue placeholder="Intenzitet" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Nizak">Nizak</SelectItem>
-                            <SelectItem value="Srednji">Srednji</SelectItem>
-                            <SelectItem value="Visok">Visok</SelectItem>
+                            <SelectItem value="Mlado">Mlado</SelectItem>
+                            <SelectItem value="Zrelo">Zrelo</SelectItem>
+                            <SelectItem value="Razvijeno">Razvijeno</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
-                      <Select
-                        value={detailedEval.aroma.development}
-                        onValueChange={(value) => setDetailedEval({ ...detailedEval, aroma: { ...detailedEval.aroma, development: value as any } })}
-                      >
-                        <SelectTrigger className="bg-white/80 text-xs">
-                          <SelectValue placeholder="Razvoj" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Mlado">Mlado</SelectItem>
-                          <SelectItem value="Zrelo">Zrelo</SelectItem>
-                          <SelectItem value="Razvijeno">Razvijeno</SelectItem>
-                        </SelectContent>
-                      </Select>
                     </div>
 
                     {/* UKUS */}
                     <div className="space-y-2">
                       <h4 className="font-medium text-sm text-amber-950">Ukus</h4>
                       <div className="grid grid-cols-2 gap-2">
-                        <Select
-                          value={detailedEval.taste.sweetness}
-                          onValueChange={(value) => setDetailedEval({ ...detailedEval, taste: { ...detailedEval.taste, sweetness: value as any } })}
-                        >
-                          <SelectTrigger className="bg-white/80 text-xs">
-                            <SelectValue placeholder="Slatkoća" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Suvo">Suvo</SelectItem>
-                            <SelectItem value="Polusuvo">Polusuvo</SelectItem>
-                            <SelectItem value="Poluslatko">Poluslatko</SelectItem>
-                            <SelectItem value="Slatko">Slatko</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Select
-                          value={detailedEval.taste.acidity}
-                          onValueChange={(value) => setDetailedEval({ ...detailedEval, taste: { ...detailedEval.taste, acidity: value as any } })}
-                        >
-                          <SelectTrigger className="bg-white/80 text-xs">
-                            <SelectValue placeholder="Kiselina" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Nizak">Nizak</SelectItem>
-                            <SelectItem value="Srednji">Srednji</SelectItem>
-                            <SelectItem value="Visok">Visok</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Slatkoća</Label>
+                          <Select
+                            value={detailedEval.taste.sweetness}
+                            onValueChange={(value) => setDetailedEval({ ...detailedEval, taste: { ...detailedEval.taste, sweetness: value as any } })}
+                          >
+                            <SelectTrigger className="bg-white/80 text-xs">
+                              <SelectValue placeholder="Izaberite" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Suvo">Suvo</SelectItem>
+                              <SelectItem value="Polusuvo">Polusuvo</SelectItem>
+                              <SelectItem value="Poluslatko">Poluslatko</SelectItem>
+                              <SelectItem value="Slatko">Slatko</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Kiselina</Label>
+                          <Select
+                            value={detailedEval.taste.acidity}
+                            onValueChange={(value) => setDetailedEval({ ...detailedEval, taste: { ...detailedEval.taste, acidity: value as any } })}
+                          >
+                            <SelectTrigger className="bg-white/80 text-xs">
+                              <SelectValue placeholder="Izaberite" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Nizak">Nizak</SelectItem>
+                              <SelectItem value="Srednji">Srednji</SelectItem>
+                              <SelectItem value="Visok">Visok</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
-                        <Select
-                          value={detailedEval.taste.body}
-                          onValueChange={(value) => setDetailedEval({ ...detailedEval, taste: { ...detailedEval.taste, body: value as any } })}
-                        >
-                          <SelectTrigger className="bg-white/80 text-xs">
-                            <SelectValue placeholder="Telo" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Lagano">Lagano</SelectItem>
-                            <SelectItem value="Srednje">Srednje</SelectItem>
-                            <SelectItem value="Puno">Puno</SelectItem>
-                          </SelectContent>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Telo</Label>
+                          <Select
+                            value={detailedEval.taste.body}
+                            onValueChange={(value) => setDetailedEval({ ...detailedEval, taste: { ...detailedEval.taste, body: value as any } })}
+                          >
+                            <SelectTrigger className="bg-white/80 text-xs">
+                              <SelectValue placeholder="Izaberite" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Lagano">Lagano</SelectItem>
+                              <SelectItem value="Srednje">Srednje</SelectItem>
+                              <SelectItem value="Puno">Puno</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Tanini</Label>
+                          <Select
+                            value={detailedEval.taste.tannins || 'nema'}
+                            onValueChange={(value) => setDetailedEval({ ...detailedEval, taste: { ...detailedEval.taste, tannins: value === 'nema' ? undefined : value as any } })}
+                          >
+                            <SelectTrigger className="bg-white/80 text-xs">
+                              <SelectValue placeholder="Izaberite" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Nema">Nema</SelectItem>
+                              <SelectItem value="Nizak">Nizak</SelectItem>
+                              <SelectItem value="Srednji">Srednji</SelectItem>
+                              <SelectItem value="Visok">Visok</SelectItem>
+                            </SelectContent>
                         </Select>
-                        <Select
-                          value={detailedEval.taste.tannins || 'nema'}
-                          onValueChange={(value) => setDetailedEval({ ...detailedEval, taste: { ...detailedEval.taste, tannins: value === 'nema' ? undefined : value as any } })}
-                        >
-                          <SelectTrigger className="bg-white/80 text-xs">
-                            <SelectValue placeholder="Tanini" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Nema">Nema</SelectItem>
-                            <SelectItem value="Nizak">Nizak</SelectItem>
-                            <SelectItem value="Srednji">Srednji</SelectItem>
-                            <SelectItem value="Visok">Visok</SelectItem>
-                          </SelectContent>
-                        </Select>
+                      </div>
                       </div>
                     </div>
 
@@ -635,49 +665,58 @@ export function AddWineModal({ open, onClose, onSubmit }: AddWineModalProps) {
                     <div className="space-y-2">
                       <h4 className="font-medium text-sm text-amber-950">Zaključak</h4>
                       <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-1">
+                          <Label className="text-xs">Kvalitet</Label>
+                          <Select
+                            value={detailedEval.conclusion.quality}
+                            onValueChange={(value) => setDetailedEval({ ...detailedEval, conclusion: { ...detailedEval.conclusion, quality: value as any } })}
+                          >
+                            <SelectTrigger className="bg-white/80 text-xs">
+                              <SelectValue placeholder="Izaberite" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Sa_manom">Sa manom</SelectItem>
+                              <SelectItem value="Slabije">Slabije</SelectItem>
+                              <SelectItem value="Prihvatljivo">Prihvatljivo</SelectItem>
+                              <SelectItem value="Dobro">Dobro</SelectItem>
+                              <SelectItem value="Vrlo_dobro">Vrlo dobro</SelectItem>
+                              <SelectItem value="Izuzetno">Izuzetno</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Završnica</Label>
+                          <Select
+                            value={detailedEval.conclusion.finish}
+                            onValueChange={(value) => setDetailedEval({ ...detailedEval, conclusion: { ...detailedEval.conclusion, finish: value as any } })}
+                          >
+                            <SelectTrigger className="bg-white/80 text-xs">
+                              <SelectValue placeholder="Izaberite" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Kratka">Kratka</SelectItem>
+                              <SelectItem value="Srednja">Srednja</SelectItem>
+                              <SelectItem value="Duga">Duga</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Balans</Label>
                         <Select
-                          value={detailedEval.conclusion.quality}
-                          onValueChange={(value) => setDetailedEval({ ...detailedEval, conclusion: { ...detailedEval.conclusion, quality: value as any } })}
+                          value={detailedEval.conclusion.balance}
+                          onValueChange={(value) => setDetailedEval({ ...detailedEval, conclusion: { ...detailedEval.conclusion, balance: value as any } })}
                         >
                           <SelectTrigger className="bg-white/80 text-xs">
-                            <SelectValue placeholder="Kvalitet" />
+                            <SelectValue placeholder="Izaberite" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Sa_manom">Sa manom</SelectItem>
-                            <SelectItem value="Slabije">Slabije</SelectItem>
-                            <SelectItem value="Prihvatljivo">Prihvatljivo</SelectItem>
+                            <SelectItem value="Lose">Loše</SelectItem>
                             <SelectItem value="Dobro">Dobro</SelectItem>
-                            <SelectItem value="Vrlo_dobro">Vrlo dobro</SelectItem>
-                            <SelectItem value="Izuzetno">Izuzetno</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Select
-                          value={detailedEval.conclusion.finish}
-                          onValueChange={(value) => setDetailedEval({ ...detailedEval, conclusion: { ...detailedEval.conclusion, finish: value as any } })}
-                        >
-                          <SelectTrigger className="bg-white/80 text-xs">
-                            <SelectValue placeholder="Završnica" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Kratka">Kratka</SelectItem>
-                            <SelectItem value="Srednja">Srednja</SelectItem>
-                            <SelectItem value="Duga">Duga</SelectItem>
+                            <SelectItem value="Odlicno">Odlično</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
-                      <Select
-                        value={detailedEval.conclusion.balance}
-                        onValueChange={(value) => setDetailedEval({ ...detailedEval, conclusion: { ...detailedEval.conclusion, balance: value as any } })}
-                      >
-                        <SelectTrigger className="bg-white/80 text-xs">
-                          <SelectValue placeholder="Balans" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Lose">Loše</SelectItem>
-                          <SelectItem value="Dobro">Dobro</SelectItem>
-                          <SelectItem value="Odlicno">Odlično</SelectItem>
-                        </SelectContent>
-                      </Select>
                     </div>
                   </div>
                 )}

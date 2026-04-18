@@ -53,29 +53,29 @@ export interface GradingScores {
 export interface DetailedEvaluation {
   // IZGLED
   appearance: {
-    clarity: 'bistro' | 'slabiji' | 'mutno';
+    clarity: 'Bistro' | 'Slabije' | 'Mutno';
     color: string;
-    intensity: 'nizak' | 'srednji' | 'visok';
-    viscosity: 'kratka' | 'srednja' | 'duga';
+    intensity: 'Nizak' | 'Srednji' | 'Visok';
+    viscosity: 'Kratka' | 'Srednja' | 'Duga';
   };
   // MIRIS
   aroma: {
-    condition: 'ispravno' | 'lago_smanjen' | 'nepravilno';
-    intensity: 'nizak' | 'srednji' | 'visok';
-    development: 'mlado' | 'zrelo' | 'razvijeno';
-  };
+    condition: 'Ispravno' | 'Neispravno';
+    intensity: 'Nizak' | 'Srednji' | 'Visok';
+    development: 'Mlado' | 'Zrelo' | 'Razvijeno';
+  }
   // UKUS
   taste: {
-    sweetness: 'suvo' | 'polusuvo' | 'poluslatko' | 'slatko';
-    acidity: 'nizak' | 'srednji' | 'visok';
-    tannins?: 'nema' | 'nizak' | 'srednji' | 'visok';
-    body: 'lagano' | 'srednje' | 'puno';
+    sweetness: 'Suvo' | 'Polusuvo' | 'Poluslatko' | 'Slatko';
+    acidity: 'Nizak' | 'Srednji' | 'Visok';
+    tannins?: 'Nema' | 'Nizak' | 'Srednji' | 'Visok';
+    body: 'Lagano' | 'Srednje' | 'Puno';
   };
   // ZAKLJUČAK
   conclusion: {
-    quality: 'sa_manom' | 'slabije' | 'prihvatljivo' | 'dobro' | 'vrlo_dobro' | 'izuzetno';
-    finish: 'kratka' | 'srednja' | 'duga';
-    balance: 'lose' | 'dobro' | 'odlicno';
+    quality: 'Sa_manom' | 'Slabije' | 'Prihvatljivo' | 'Dobro' | 'Vrlo_dobro' | 'Izuzetno';
+    finish: 'Kratka' | 'Srednja' | 'Duga';
+    balance: 'Lose' | 'Dobro' | 'Odlicno';
   };
 }
 
@@ -136,10 +136,10 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
 
   const [showDetailed, setShowDetailed] = useState(false);
   const [detailedEval, setDetailedEval] = useState<DetailedEvaluation>({
-    appearance: { clarity: 'bistro', color: '', intensity: 'srednji', viscosity: 'srednja' },
-    aroma: { condition: 'ispravno', intensity: 'srednji', development: 'zrelo' },
-    taste: { sweetness: 'suvo', acidity: 'srednji', body: 'srednje' },
-    conclusion: { quality: 'dobro', finish: 'srednja', balance: 'dobro' },
+    appearance: { clarity: 'Bistro', color: '', intensity: 'Srednji', viscosity: 'Srednja' },
+    aroma: { condition: 'Ispravno', intensity: 'Srednji', development: 'Zrelo' },
+    taste: { sweetness: 'Suvo', acidity: 'Srednji', body: 'Srednje' },
+    conclusion: { quality: 'Dobro', finish: 'Srednja', balance: 'Dobro' },
   });
 
   const [selectedCategory, setSelectedCategory] = useState<string>(DEFAULT_AROMA_CATEGORY_ID);
@@ -189,10 +189,10 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
       setDetailedEval(wine.detailedEval);
     } else {
       setDetailedEval({
-        appearance: { clarity: 'bistro', color: '', intensity: 'srednji', viscosity: 'srednja' },
-        aroma: { condition: 'ispravno', intensity: 'srednji', development: 'zrelo' },
-        taste: { sweetness: 'suvo', acidity: 'srednji', body: 'srednje' },
-        conclusion: { quality: 'dobro', finish: 'srednja', balance: 'dobro' },
+        appearance: { clarity: 'Bistro', color: '', intensity: 'Srednji', viscosity: 'Srednja' },
+        aroma: { condition: 'Ispravno', intensity: 'Srednji', development: 'Zrelo' },
+        taste: { sweetness: 'Suvo', acidity: 'Srednji', body: 'Srednje' },
+        conclusion: { quality: 'Dobro', finish: 'Srednja', balance: 'Dobro' },
       });
     }
   }, [wine?.id, open]);
@@ -476,9 +476,9 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="bistro">Bistro</SelectItem>
-                          <SelectItem value="slabiji">Slabiji</SelectItem>
-                          <SelectItem value="mutno">Mutno</SelectItem>
+                          <SelectItem value="Bistro">Bistro</SelectItem>
+                          <SelectItem value="Slabije">Slabije</SelectItem>
+                          <SelectItem value="Mutno">Mutno</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -492,9 +492,9 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="nizak">Nizak</SelectItem>
-                          <SelectItem value="srednji">Srednji</SelectItem>
-                          <SelectItem value="visok">Visok</SelectItem>
+                          <SelectItem value="Nizak">Nizak</SelectItem>
+                          <SelectItem value="Srednji">Srednji</SelectItem>
+                          <SelectItem value="Visok">Visok</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -508,9 +508,9 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="kratka">Kratka</SelectItem>
-                          <SelectItem value="srednja">Srednja</SelectItem>
-                          <SelectItem value="duga">Duga</SelectItem>
+                          <SelectItem value="Kratka">Kratka</SelectItem>
+                          <SelectItem value="Srednja">Srednja</SelectItem>
+                          <SelectItem value="Duga">Duga</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -540,9 +540,8 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="ispravno">Ispravno</SelectItem>
-                          <SelectItem value="lago_smanjen">Lago smanjen</SelectItem>
-                          <SelectItem value="nepravilno">Nepravilno</SelectItem>
+                          <SelectItem value="Ispravno">Ispravno</SelectItem>
+                          <SelectItem value="Neispravno">Neispravno</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -556,9 +555,9 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="nizak">Nizak</SelectItem>
-                          <SelectItem value="srednji">Srednji</SelectItem>
-                          <SelectItem value="visok">Visok</SelectItem>
+                          <SelectItem value="Nizak">Nizak</SelectItem>
+                          <SelectItem value="Srednji">Srednji</SelectItem>
+                          <SelectItem value="Visok">Visok</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -572,9 +571,9 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="mlado">Mlado</SelectItem>
-                          <SelectItem value="zrelo">Zrelo</SelectItem>
-                          <SelectItem value="razvijeno">Razvijeno</SelectItem>
+                          <SelectItem value="Mlado">Mlado</SelectItem>
+                          <SelectItem value="Zrelo">Zrelo</SelectItem>
+                          <SelectItem value="Razvijeno">Razvijeno</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -595,10 +594,10 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="suvo">Suvo</SelectItem>
-                          <SelectItem value="polusuvo">Polusuvo</SelectItem>
-                          <SelectItem value="poluslatko">Poluslatko</SelectItem>
-                          <SelectItem value="slatko">Slatko</SelectItem>
+                          <SelectItem value="Suvo">Suvo</SelectItem>
+                          <SelectItem value="Polusuvo">Polusuvo</SelectItem>
+                          <SelectItem value="Poluslatko">Poluslatko</SelectItem>
+                          <SelectItem value="Slatko">Slatko</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -612,9 +611,9 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="nizak">Nizak</SelectItem>
-                          <SelectItem value="srednji">Srednji</SelectItem>
-                          <SelectItem value="visok">Visok</SelectItem>
+                          <SelectItem value="Nizak">Nizak</SelectItem>
+                          <SelectItem value="Srednji">Srednji</SelectItem>
+                          <SelectItem value="Visok">Visok</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -628,9 +627,9 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="lagano">Lagano</SelectItem>
-                          <SelectItem value="srednje">Srednje</SelectItem>
-                          <SelectItem value="puno">Puno</SelectItem>
+                          <SelectItem value="Lagano">Lagano</SelectItem>
+                          <SelectItem value="Srednje">Srednje</SelectItem>
+                          <SelectItem value="Puno">Puno</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -644,10 +643,10 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="nema">Nema</SelectItem>
-                          <SelectItem value="nizak">Nizak</SelectItem>
-                          <SelectItem value="srednji">Srednji</SelectItem>
-                          <SelectItem value="visok">Visok</SelectItem>
+                          <SelectItem value="Nema">Nema</SelectItem>
+                          <SelectItem value="Nizak">Nizak</SelectItem>
+                          <SelectItem value="Srednji">Srednji</SelectItem>
+                          <SelectItem value="Visok">Visok</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -668,12 +667,12 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="sa_manom">Sa manom</SelectItem>
-                          <SelectItem value="slabije">Slabije</SelectItem>
-                          <SelectItem value="prihvatljivo">Prihvatljivo</SelectItem>
-                          <SelectItem value="dobro">Dobro</SelectItem>
-                          <SelectItem value="vrlo_dobro">Vrlo dobro</SelectItem>
-                          <SelectItem value="izuzetno">Izuzetno</SelectItem>
+                          <SelectItem value="Sa_manom">Sa manom</SelectItem>
+                          <SelectItem value="Slabije">Slabije</SelectItem>
+                          <SelectItem value="Prihvatljivo">Prihvatljivo</SelectItem>
+                          <SelectItem value="Dobro">Dobro</SelectItem>
+                          <SelectItem value="Vrlo_dobro">Vrlo dobro</SelectItem>
+                          <SelectItem value="Izuzetno">Izuzetno</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -687,9 +686,9 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="kratka">Kratka</SelectItem>
-                          <SelectItem value="srednja">Srednja</SelectItem>
-                          <SelectItem value="duga">Duga</SelectItem>
+                          <SelectItem value="Kratka">Kratka</SelectItem>
+                          <SelectItem value="Srednja">Srednja</SelectItem>
+                          <SelectItem value="Duga">Duga</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -703,9 +702,9 @@ export function GradingModal({ wine, open, onClose, onSubmit }: GradingModalProp
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="lose">Loše</SelectItem>
-                          <SelectItem value="dobro">Dobro</SelectItem>
-                          <SelectItem value="odlicno">Odlično</SelectItem>
+                          <SelectItem value="Lose">Loše</SelectItem>
+                          <SelectItem value="Dobro">Dobro</SelectItem>
+                          <SelectItem value="Odlicno">Odlično</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
