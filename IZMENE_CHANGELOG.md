@@ -1,5 +1,14 @@
 # Changelog - Poslednje Izmene
 
+## 🆕 Novembar 2026
+
+- 🛟 **Rezervna kopija** - novo dugme "Rezervna Kopija": izvoz (kopiraj / preuzmi .json) i uvoz vina
+- 📦 **package.json** - `react`, `react-dom`, `@capacitor/core` i `@capacitor/cli` su sada prave zavisnosti
+  (ranije su radile samo slučajno). Posle preuzimanja pokrenite `npm install`.
+- 🧹 **Čišćenje koda** - zajednički tipovi i logika kupaže izdvojeni u `src/app/wine.ts`;
+  uklonjeno ~30 neiskorišćenih UI komponenti; `dist/` više nije u gitu
+- 📝 **README** - ispravljeno: ocena je prosek 4 kategorije, arome ne utiču na ocenu
+
 ## 🎉 Nove Funkcionalnosti
 
 ### 1. ✅ LocalStorage - Trajno Čuvanje Vina

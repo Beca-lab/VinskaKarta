@@ -13,3 +13,6 @@ app/build/
 # OS
 .DS_Store
 Thumbs.db
+
+# Build izlaz (pravi se sa npm run build)
+dist/

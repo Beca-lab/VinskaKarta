@@ -8,7 +8,6 @@ import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Switch } from "./ui/switch";
 import { Slider } from "./ui/slider";
 import { Textarea } from "./ui/textarea";
-import { GradingScores, type DetailedEvaluation } from "./GradingModal";
 import { Wine, Plus, Trash2 } from "lucide-react";
 import {
   AROMA_CATEGORIES,
@@ -19,6 +18,21 @@ import {
 import { AromaCategorySelector } from "./aroma/AromaCategorySelector";
 import { AromaChipGrid } from "./aroma/AromaChipGrid";
 import { SelectedAromaTags } from "./aroma/SelectedAromaTags";
+import {
+  blendInputsToComponents,
+  createDefaultDetailedEval,
+  createEmptyBlend,
+  DEFAULT_SCORES,
+  getBlendTotal,
+  normalizeBlendAfterPercentChange,
+  type BlendComponentInput,
+  type DetailedEvaluation,
+  type GradingScores,
+  type NewWine,
+} from "../wine";
+
+// Ponovni izvoz radi kompatibilnosti sa postojećim importima
+export type { NewWine } from "../wine";
 
 interface AddWineModalProps {
   open: boolean;
@@ -26,33 +40,7 @@ interface AddWineModalProps {
   onSubmit: (wine: NewWine) => void;
 }
 
-export interface NewWine {
-  name: string;
-  type?: string;
-  composition?: "Cisto" | "Kupaza";
-  variety?: string;
-  blend?: Array<{ grape: string; percent: number }>;
-  vintage?: string;
-  region?: string;
-  scores?: GradingScores;
-  aromas?: AromaId[];
-  notes?: string;
-  detailedEval?: DetailedEvaluation;
-}
-
-type BlendComponentInput = {
-  grape: string;
-  percent: string;
-};
-
 export function AddWineModal({ open, onClose, onSubmit }: AddWineModalProps) {
-  const defaultScores: GradingScores = {
-    appearance: 50,
-    taste: 50,
-    finish: 50,
-    overall: 50,
-  };
-
   const [formData, setFormData] = useState({
     name: "",
     type: "",
@@ -62,13 +50,10 @@ export function AddWineModal({ open, onClose, onSubmit }: AddWineModalProps) {
 
   const [composition, setComposition] = useState<"" | "Cisto" | "Kupaza">("");
   const [variety, setVariety] = useState("");
-  const [blend, setBlend] = useState<BlendComponentInput[]>([
-    { grape: "", percent: "" },
-    { grape: "", percent: "" },
-  ]);
+  const [blend, setBlend] = useState<BlendComponentInput[]>(createEmptyBlend());
 
   const [includeGrading, setIncludeGrading] = useState(false);
-  const [scores, setScores] = useState<GradingScores>(defaultScores);
+  const [scores, setScores] = useState<GradingScores>(DEFAULT_SCORES);
   const [notes, setNotes] = useState("");
 
   const [showAromas, setShowAromas] = useState(false);
@@ -77,12 +62,7 @@ export function AddWineModal({ open, onClose, onSubmit }: AddWineModalProps) {
   const aromaLabels = useMemo(() => buildAromaLabelIndex(AROMA_CATEGORIES), []);
 
   const [showDetailed, setShowDetailed] = useState(false);
-  const [detailedEval, setDetailedEval] = useState<DetailedEvaluation>({
-    appearance: { clarity: 'Bistro', color: '', intensity: 'Srednji', viscosity: 'Srednja' },
-    aroma: { condition: 'Ispravno', intensity: 'Srednji', development: 'Zrelo' },
-    taste: { sweetness: 'Suvo', acidity: 'Srednji', body: 'Srednje' },
-    conclusion: { quality: 'Dobro', finish: 'Srednja', balance: 'Dobro' },
-  });
+  const [detailedEval, setDetailedEval] = useState<DetailedEvaluation>(createDefaultDetailedEval());
 
   const selectedCategoryData = useMemo(
     () => AROMA_CATEGORIES.find((c) => c.id === selectedCategory),
@@ -91,39 +71,6 @@ export function AddWineModal({ open, onClose, onSubmit }: AddWineModalProps) {
 
   const toggleAroma = (id: AromaId) => {
     setSelectedAromas((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
-  };
-
-  const parsePercent = (value: string) => {
-    if (value.trim() === "") return 0;
-    const n = Number(value);
-    return Number.isFinite(n) ? n : 0;
-  };
-
-  const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
-
-  const getBlendTotal = (items: BlendComponentInput[]) =>
-    items.reduce((sum, item) => sum + clamp(parsePercent(item.percent), 0, 100), 0);
-
-  const normalizeBlendAfterPercentChange = (items: BlendComponentInput[], index: number) => {
-    const next = items.map((x) => ({ ...x }));
-
-    if (next.length === 2) {
-      const p = clamp(parsePercent(next[index].percent), 0, 100);
-      next[index].percent = String(p);
-      const otherIndex = index === 0 ? 1 : 0;
-      next[otherIndex].percent = String(clamp(100 - p, 0, 100));
-      return next;
-    }
-
-    const sumOthers = next.reduce((sum, item, i) => {
-      if (i === index) return sum;
-      return sum + clamp(parsePercent(item.percent), 0, 100);
-    }, 0);
-
-    const remaining = clamp(100 - sumOthers, 0, 100);
-    const p = clamp(parsePercent(next[index].percent), 0, remaining);
-    next[index].percent = next[index].percent.trim() === "" ? "" : String(p);
-    return next;
   };
 
   const handleSubmit = (e: FormEvent) => {
@@ -161,12 +108,7 @@ export function AddWineModal({ open, onClose, onSubmit }: AddWineModalProps) {
     }
 
     if (newWine.composition === "Kupaza") {
-      const components = blend
-        .filter((b: BlendComponentInput) => b.grape.trim() !== "")
-        .map((b: BlendComponentInput) => ({
-          grape: b.grape.trim(),
-          percent: clamp(parsePercent(b.percent), 0, 100),
-        }));
+      const components = blendInputsToComponents(blend);
       if (components.length > 0) {
         newWine.blend = components;
       }
@@ -190,23 +132,15 @@ export function AddWineModal({ open, onClose, onSubmit }: AddWineModalProps) {
     });
     setComposition("");
     setVariety("");
-    setBlend([
-      { grape: "", percent: "" },
-      { grape: "", percent: "" },
-    ]);
+    setBlend(createEmptyBlend());
     setIncludeGrading(false);
-    setScores(defaultScores);
+    setScores(DEFAULT_SCORES);
     setNotes("");
     setShowAromas(false);
     setSelectedCategory(DEFAULT_AROMA_CATEGORY_ID);
     setSelectedAromas([]);
     setShowDetailed(false);
-    setDetailedEval({
-      appearance: { clarity: 'Bistro', color: '', intensity: 'Srednji', viscosity: 'Srednja' },
-      aroma: { condition: 'Ispravno', intensity: 'Srednji', development: 'Zrelo' },
-      taste: { sweetness: 'Suvo', acidity: 'Srednji', body: 'Srednje' },
-      conclusion: { quality: 'Dobro', finish: 'Srednja', balance: 'Dobro' },
-    });
+    setDetailedEval(createDefaultDetailedEval());
     onClose();
   };
 

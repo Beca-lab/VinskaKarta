@@ -6,11 +6,12 @@ Mobilna Android aplikacija za profesionalnu degustaciju i ocenjivanje vina, sa e
 
 - 📱 **Mobilna verzija** - Optimizovana za Android telefone
 - 🍇 **Elegantan dizajn** - Drveni ram sa vinovom lozom i grožđem po uglovima
-- ⭐ **Profesionalno ocenjivanje** - 5 kategorija (Izgled, Aroma, Ukus, Završetak, Ukupno)
+- ⭐ **Profesionalno ocenjivanje** - 4 kategorije (Izgled, Ukus, Završetak, Ukupno) + izbor aroma i detaljna evaluacija
 - 🔍 **Napredni filteri** - Po tipu vina i regionu
 - 📊 **Sortiranje** - Od najboljih ka najgorim, najnovije prvo
 - ✏️ **Izmena podataka** - Mogućnost izmene svih informacija o vinu prilikom ocenjivanja
-- 💾 **LocalStorage** - Automatsko čuvanje svih vina u browser-u
+- 💾 **LocalStorage** - Automatsko čuvanje svih vina na uređaju
+- 🛟 **Rezervna kopija** - Izvoz (kopiranje / .json fajl) i uvoz liste vina
 - 🗑️ **Brisanje vina** - Dugme za brisanje na svakoj kartici
 - 📝 **Dugačka imena** - Automatski prelom u više redova
 - 💾 **Dodavanje vina** - Lako dodavanje novih vina u kolekciju
@@ -64,10 +65,15 @@ Detaljno uputstvo: **IKONA_UPUTSTVO.md**
 ├── src/
 │   └── app/
 │       ├── App.tsx              # Glavna komponenta
+│       ├── wine.ts              # Zajednički tipovi, formula ocene, logika kupaže
 │       └── components/
 │           ├── WineCard.tsx     # Kartica vina
 │           ├── GradingModal.tsx # Modal za ocenjivanje
-│           └── AddWineModal.tsx # Modal za dodavanje vina
+│           ├── AddWineModal.tsx # Modal za dodavanje vina
+│           ├── BackupModal.tsx  # Izvoz / uvoz rezervne kopije
+│           ├── aroma/           # Izbor aroma
+│           └── ui/              # Osnovne UI komponente (dugmad, dijalozi...)
+├── src/data/aromas.ts           # Lista aroma po kategorijama
 ├── android/                     # Android projekat (kreira Capacitor)
 ├── resources/                   # Ikone i splash screens
 ├── capacitor.config.ts          # Capacitor konfiguracija
@@ -89,12 +95,21 @@ Detaljno uputstvo: **IKONA_UPUTSTVO.md**
 
 ### Ocenjivanje Vina
 - **Izgled** (Bistrina, boja, viskoznost)
-- **Aroma** (Miris, buket, intenzitet)
 - **Ukus** (Aroma, balans, kompleksnost)
 - **Završetak** (Posleukus, trajanje)
 - **Ukupno** (Opšti utisak)
 
-Svaka kategorija se ocenjuje od 0-100 poena.
+Svaka kategorija se ocenjuje od 0-100 poena. **Konačna ocena je prosek ove 4 kategorije.**
+
+Arome (voćne, cvetne, začinske...) se biraju kao opis vina i koriste se za filtriranje,
+ali **ne utiču na ocenu**. Isto važi i za detaljnu evaluaciju (bistrina, slatkoća, tanini...).
+
+### Rezervna Kopija
+Vina se čuvaju samo na uređaju — brisanjem podataka aplikacije ili reinstalacijom se gube.
+Dugme **Rezervna Kopija** na početnom ekranu omogućava:
+- **Kopiraj** - kopira sva vina kao tekst (nalepite u beleške, e-mail, Viber...)
+- **Preuzmi fajl** - preuzima `.json` fajl (radi u browseru; na telefonu koristite Kopiraj)
+- **Uvoz** - iz `.json` fajla ili nalepljenog teksta (zamenjuje trenutnu listu, uz potvrdu)
 
 ### Dodavanje Vina
 - Ime vina

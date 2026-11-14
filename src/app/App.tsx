@@ -1,27 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
 import { WineCard } from "./components/WineCard";
-import { GradingModal, GradingScores, type DetailedEvaluation } from "./components/GradingModal";
-import { AddWineModal, NewWine } from "./components/AddWineModal";
-import { Wine, Award, Plus, ListFilter } from "lucide-react";
+import { GradingModal } from "./components/GradingModal";
+import { AddWineModal } from "./components/AddWineModal";
+import { BackupModal } from "./components/BackupModal";
+import { Wine as WineIcon, Award, Plus, ListFilter, DatabaseBackup } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
 import { AROMA_CATEGORIES, buildAromaLabelIndex, type AromaId } from "../data/aromas";
-
-interface Wine {
-  id: number;
-  name: string;
-  type?: string;
-  vintage?: string;
-  region?: string;
-  composition?: "Cisto" | "Kupaza";
-  variety?: string;
-  blend?: Array<{ grape: string; percent: number }>;
-  scores?: GradingScores;
-  aromas?: AromaId[];
-  rating?: number;
-  notes?: string;
-  detailedEval?: DetailedEvaluation;
-}
+import { computeRating, type DetailedEvaluation, type GradingScores, type NewWine, type Wine } from "./wine";
 
 const STORAGE_KEY = 'wine-app-data';
 
@@ -92,6 +78,7 @@ export default function App() {
   const [selectedWine, setSelectedWine] = useState<Wine | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [regionFilter, setRegionFilter] = useState<string>("all");
   const [aromaFilter, setAromaFilter] = useState<AromaId | "all">("all");
@@ -114,10 +101,9 @@ export default function App() {
   };
 
   const handleSubmitGrade = (wineId: number, scores: GradingScores, notes: string, updatedWineInfo: Partial<Wine>, detailedEval?: DetailedEvaluation) => {
-    const totalScore =
-      (scores.appearance + scores.taste + scores.finish + scores.overall) / 4;
-    
-    setWines(wines.map((wine) => 
+    const totalScore = computeRating(scores);
+
+    setWines((prev) => prev.map((wine) => 
       wine.id === wineId 
         ? { ...wine, ...updatedWineInfo, scores, rating: totalScore, notes, detailedEval } 
         : wine
@@ -125,19 +111,27 @@ export default function App() {
   };
 
   const handleAddWine = (newWine: NewWine) => {
-    const rating = newWine.scores
-      ? (newWine.scores.appearance + newWine.scores.taste + newWine.scores.finish + newWine.scores.overall) / 4
-      : undefined;
-    const wine: Wine = {
-      id: wines.length > 0 ? Math.max(...wines.map(w => w.id)) + 1 : 1,
-      ...newWine,
-      rating,
-    };
-    setWines([...wines, wine]);
+    const rating = newWine.scores ? computeRating(newWine.scores) : undefined;
+    setWines((prev) => {
+      const wine: Wine = {
+        id: prev.length > 0 ? Math.max(...prev.map(w => w.id)) + 1 : 1,
+        ...newWine,
+        rating,
+      };
+      return [...prev, wine];
+    });
   };
 
   const handleDeleteWine = (wineId: number) => {
-    setWines(wines.filter(wine => wine.id !== wineId));
+    setWines((prev) => prev.filter(wine => wine.id !== wineId));
+  };
+
+  const handleImportWines = (imported: Wine[]) => {
+    // Ocena se računa ponovo iz sačuvanih poena, da bude usklađena sa trenutnom formulom
+    setWines(imported.map((w) => (w.scores ? { ...w, rating: computeRating(w.scores) } : w)));
+    setTypeFilter("all");
+    setRegionFilter("all");
+    setAromaFilter("all");
   };
 
   // Get unique types, regions and aromas for filters
@@ -316,7 +310,7 @@ export default function App() {
               {/* Header */}
               <div className="mb-6 sm:mb-8 text-center">
                 <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2">
-                  <Wine className="w-6 h-6 sm:w-8 sm:h-8 text-purple-900" />
+                  <WineIcon className="w-6 h-6 sm:w-8 sm:h-8 text-purple-900" />
                   <h1 className="text-2xl sm:text-3xl md:text-4xl text-amber-950 tracking-wide">Ocenjivanje Vina</h1>
                   <Award className="w-6 h-6 sm:w-8 sm:h-8 text-amber-600" />
                 </div>
@@ -394,14 +388,22 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Add Wine Button */}
-              <div className="mb-4 sm:mb-6 flex justify-center">
+              {/* Add Wine + Backup Buttons */}
+              <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row justify-center gap-2">
                 <Button 
                   onClick={() => setIsAddModalOpen(true)}
                   className="bg-purple-900 hover:bg-purple-800 shadow-md w-full sm:w-auto h-11 sm:h-10"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Dodaj Novo Vino
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsBackupModalOpen(true)}
+                  className="bg-white/70 border-amber-900/30 text-amber-950 shadow-sm w-full sm:w-auto h-11 sm:h-10"
+                >
+                  <DatabaseBackup className="w-4 h-4 mr-2" />
+                  Rezervna Kopija
                 </Button>
               </div>
 
@@ -453,6 +455,14 @@ export default function App() {
         open={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSubmit={handleAddWine}
+      />
+
+      {/* Backup Modal */}
+      <BackupModal
+        open={isBackupModalOpen}
+        onClose={() => setIsBackupModalOpen(false)}
+        wines={wines}
+        onImport={handleImportWines}
       />
     </div>
   );
