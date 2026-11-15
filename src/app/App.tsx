@@ -3,6 +3,7 @@ import { WineCard } from "./components/WineCard";
 import { GradingModal } from "./components/GradingModal";
 import { AddWineModal } from "./components/AddWineModal";
 import { BackupModal } from "./components/BackupModal";
+import { VineCorner } from "./components/VineCorner";
 import { Wine as WineIcon, Award, Plus, ListFilter, DatabaseBackup } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
@@ -187,100 +188,10 @@ export default function App() {
         {/* Outer wooden border with elegant grape vine corners */}
         <div className="bg-gradient-to-br from-amber-950 via-amber-900 to-stone-900 p-2 sm:p-3 md:p-4 rounded-lg shadow-2xl relative">
           
-          {/* Top Left Corner Decoration */}
-          <div className="absolute top-2 left-2 w-24 h-24 pointer-events-none z-10">
-            <svg viewBox="0 0 100 100" className="w-full h-full">
-              {/* Main vine branch */}
-              <path d="M5,95 Q15,75 25,65 Q35,55 45,45 Q55,35 65,25 Q75,15 95,5" 
-                    stroke="#4a5d23" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-              
-              {/* Grape cluster */}
-              <circle cx="35" cy="55" r="5" fill="#7c3aed" opacity="0.9"/>
-              <circle cx="42" cy="53" r="5" fill="#8b5cf6" opacity="0.9"/>
-              <circle cx="28" cy="53" r="5" fill="#6d28d9" opacity="0.9"/>
-              <circle cx="35" cy="48" r="5" fill="#7c3aed" opacity="0.9"/>
-              <circle cx="35" cy="62" r="5" fill="#6d28d9" opacity="0.9"/>
-              <circle cx="42" cy="60" r="4.5" fill="#8b5cf6" opacity="0.85"/>
-              <circle cx="28" cy="60" r="4.5" fill="#6d28d9" opacity="0.85"/>
-              
-              {/* Leaves */}
-              <path d="M50,40 Q55,35 60,40 Q65,45 60,50 Q55,55 50,50 Q45,45 50,40" 
-                    fill="#4d7c0f" opacity="0.8"/>
-              <path d="M20,70 Q25,65 30,70 Q35,75 30,80 Q25,85 20,80 Q15,75 20,70" 
-                    fill="#65a30d" opacity="0.8"/>
-              <path d="M68,28 Q73,23 78,28 Q83,33 78,38 Q73,43 68,38 Q63,33 68,28" 
-                    fill="#4d7c0f" opacity="0.75"/>
-            </svg>
-          </div>
-
-          {/* Top Right Corner Decoration */}
-          <div className="absolute top-2 right-2 w-24 h-24 pointer-events-none z-10">
-            <svg viewBox="0 0 100 100" className="w-full h-full transform scale-x-[-1]">
-              <path d="M5,95 Q15,75 25,65 Q35,55 45,45 Q55,35 65,25 Q75,15 95,5" 
-                    stroke="#4a5d23" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-              
-              <circle cx="35" cy="55" r="5" fill="#7c3aed" opacity="0.9"/>
-              <circle cx="42" cy="53" r="5" fill="#8b5cf6" opacity="0.9"/>
-              <circle cx="28" cy="53" r="5" fill="#6d28d9" opacity="0.9"/>
-              <circle cx="35" cy="48" r="5" fill="#7c3aed" opacity="0.9"/>
-              <circle cx="35" cy="62" r="5" fill="#6d28d9" opacity="0.9"/>
-              <circle cx="42" cy="60" r="4.5" fill="#8b5cf6" opacity="0.85"/>
-              <circle cx="28" cy="60" r="4.5" fill="#6d28d9" opacity="0.85"/>
-              
-              <path d="M50,40 Q55,35 60,40 Q65,45 60,50 Q55,55 50,50 Q45,45 50,40" 
-                    fill="#4d7c0f" opacity="0.8"/>
-              <path d="M20,70 Q25,65 30,70 Q35,75 30,80 Q25,85 20,80 Q15,75 20,70" 
-                    fill="#65a30d" opacity="0.8"/>
-              <path d="M68,28 Q73,23 78,28 Q83,33 78,38 Q73,43 68,38 Q63,33 68,28" 
-                    fill="#4d7c0f" opacity="0.75"/>
-            </svg>
-          </div>
-
-          {/* Bottom Left Corner Decoration */}
-          <div className="absolute bottom-2 left-2 w-24 h-24 pointer-events-none z-10">
-            <svg viewBox="0 0 100 100" className="w-full h-full transform scale-y-[-1]">
-              <path d="M5,95 Q15,75 25,65 Q35,55 45,45 Q55,35 65,25 Q75,15 95,5" 
-                    stroke="#4a5d23" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-              
-              <circle cx="35" cy="55" r="5" fill="#7c3aed" opacity="0.9"/>
-              <circle cx="42" cy="53" r="5" fill="#8b5cf6" opacity="0.9"/>
-              <circle cx="28" cy="53" r="5" fill="#6d28d9" opacity="0.9"/>
-              <circle cx="35" cy="48" r="5" fill="#7c3aed" opacity="0.9"/>
-              <circle cx="35" cy="62" r="5" fill="#6d28d9" opacity="0.9"/>
-              <circle cx="42" cy="60" r="4.5" fill="#8b5cf6" opacity="0.85"/>
-              <circle cx="28" cy="60" r="4.5" fill="#6d28d9" opacity="0.85"/>
-              
-              <path d="M50,40 Q55,35 60,40 Q65,45 60,50 Q55,55 50,50 Q45,45 50,40" 
-                    fill="#4d7c0f" opacity="0.8"/>
-              <path d="M20,70 Q25,65 30,70 Q35,75 30,80 Q25,85 20,80 Q15,75 20,70" 
-                    fill="#65a30d" opacity="0.8"/>
-              <path d="M68,28 Q73,23 78,28 Q83,33 78,38 Q73,43 68,38 Q63,33 68,28" 
-                    fill="#4d7c0f" opacity="0.75"/>
-            </svg>
-          </div>
-
-          {/* Bottom Right Corner Decoration */}
-          <div className="absolute bottom-2 right-2 w-24 h-24 pointer-events-none z-10">
-            <svg viewBox="0 0 100 100" className="w-full h-full transform scale-[-1]">
-              <path d="M5,95 Q15,75 25,65 Q35,55 45,45 Q55,35 65,25 Q75,15 95,5" 
-                    stroke="#4a5d23" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-              
-              <circle cx="35" cy="55" r="5" fill="#7c3aed" opacity="0.9"/>
-              <circle cx="42" cy="53" r="5" fill="#8b5cf6" opacity="0.9"/>
-              <circle cx="28" cy="53" r="5" fill="#6d28d9" opacity="0.9"/>
-              <circle cx="35" cy="48" r="5" fill="#7c3aed" opacity="0.9"/>
-              <circle cx="35" cy="62" r="5" fill="#6d28d9" opacity="0.9"/>
-              <circle cx="42" cy="60" r="4.5" fill="#8b5cf6" opacity="0.85"/>
-              <circle cx="28" cy="60" r="4.5" fill="#6d28d9" opacity="0.85"/>
-              
-              <path d="M50,40 Q55,35 60,40 Q65,45 60,50 Q55,55 50,50 Q45,45 50,40" 
-                    fill="#4d7c0f" opacity="0.8"/>
-              <path d="M20,70 Q25,65 30,70 Q35,75 30,80 Q25,85 20,80 Q15,75 20,70" 
-                    fill="#65a30d" opacity="0.8"/>
-              <path d="M68,28 Q73,23 78,28 Q83,33 78,38 Q73,43 68,38 Q63,33 68,28" 
-                    fill="#4d7c0f" opacity="0.75"/>
-            </svg>
-          </div>
+          <VineCorner corner="top-left" />
+          <VineCorner corner="top-right" />
+          <VineCorner corner="bottom-left" />
+          <VineCorner corner="bottom-right" />
 
           {/* Inner wooden border with texture effect */}
           <div className="bg-gradient-to-br from-amber-800 via-amber-700 to-amber-900 p-1.5 sm:p-2 rounded-md shadow-inner relative z-10">
