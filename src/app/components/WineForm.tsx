@@ -81,7 +81,9 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
     [selectedCategory]
   );
 
+  // Detaljna analiza je sklopljena pri otvaranju, ali se već uneta analiza čuva i kad se ne rasklopi
   const [showDetailed, setShowDetailed] = useState(false);
+  const [detailedEnabled, setDetailedEnabled] = useState(Boolean(initial?.detailedEval));
   const [detailedEval, setDetailedEval] = useState<DetailedEvaluation>(
     () => initial?.detailedEval ?? createDefaultDetailedEval()
   );
@@ -122,7 +124,7 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
       scores: includeGrading ? scores : undefined,
       aromas: includeGrading ? selectedAromas : undefined,
       notes: includeGrading ? notes : undefined,
-      detailedEval: includeGrading && showDetailed ? detailedEval : undefined,
+      detailedEval: includeGrading && detailedEnabled ? detailedEval : undefined,
     };
 
     onSubmit(values);
@@ -375,15 +377,34 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
           <Button
             type="button"
             variant="outline"
-            onClick={() => setShowDetailed(!showDetailed)}
+            onClick={() => {
+              if (!showDetailed) setDetailedEnabled(true);
+              setShowDetailed(!showDetailed);
+            }}
             className="w-full"
           >
             {showDetailed ? "▼ Sakrij Detaljnu Analizu" : "▶ Prikaži Detaljnu Analizu"}
+            {!showDetailed && detailedEnabled ? " (uneta)" : ""}
           </Button>
 
           {showDetailed && (
             <div className="space-y-4 pt-2 border-t border-amber-900/20">
-              <h4 className="font-medium text-amber-950">Detaljna Analiza</h4>
+              <div className="flex items-center justify-between gap-2">
+                <h4 className="font-medium text-amber-950">Detaljna Analiza</h4>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 text-xs text-red-700 hover:bg-red-100 hover:text-red-700"
+                  onClick={() => {
+                    setDetailedEval(createDefaultDetailedEval());
+                    setDetailedEnabled(false);
+                    setShowDetailed(false);
+                  }}
+                >
+                  Obriši analizu
+                </Button>
+              </div>
               <DetailedEvalFields value={detailedEval} onChange={setDetailedEval} />
             </div>
           )}
