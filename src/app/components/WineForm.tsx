@@ -26,8 +26,10 @@ import {
   createEmptyBlend,
   DEFAULT_SCORES,
   formatDecimal,
+  formatNumber,
   getBlendTotal,
   normalizeBlendAfterPercentChange,
+  parseOptionalNumber,
   SCORE_CATEGORIES,
   todayISO,
   WINE_TYPES,
@@ -39,7 +41,7 @@ import {
   type Wine,
 } from "../wine";
 
-type FormErrors = Partial<Record<"name" | "blend" | "vintage", string>>;
+type FormErrors = Partial<Record<"name" | "blend" | "vintage" | "price" | "alcohol", string>>;
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -82,6 +84,13 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
   const [type, setType] = useState(initial?.type ?? "");
   const [vintage, setVintage] = useState(initial?.vintage ?? "");
   const [region, setRegion] = useState(initial?.region ?? "");
+  const [winery, setWinery] = useState(initial?.winery ?? "");
+  const [priceText, setPriceText] = useState(initial?.price !== undefined ? formatNumber(initial.price) : "");
+  const [alcoholText, setAlcoholText] = useState(
+    initial?.alcohol !== undefined ? formatNumber(initial.alcohol) : ""
+  );
+  const [purchasePlace, setPurchasePlace] = useState(initial?.purchasePlace ?? "");
+  const [buyAgain, setBuyAgain] = useState(Boolean(initial?.buyAgain));
 
   const [composition, setComposition] = useState<"" | Composition>(initial?.composition ?? "");
   const [variety, setVariety] = useState(initial?.variety ?? "");
@@ -154,6 +163,16 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
       }
     }
 
+    const price = parseOptionalNumber(priceText);
+    if (price !== undefined && (Number.isNaN(price) || price < 0)) {
+      found.price = "Cena mora biti broj (npr. 1200 ili 9,50).";
+    }
+
+    const alcohol = parseOptionalNumber(alcoholText);
+    if (alcohol !== undefined && (Number.isNaN(alcohol) || alcohol < 0 || alcohol > 100)) {
+      found.alcohol = "Alkohol mora biti broj između 0 i 100 (npr. 13,5).";
+    }
+
     setErrors(found);
     if (Object.keys(found).length > 0) {
       // Prikaži prvu grešku (forma je duga, pa greška može biti van ekrana)
@@ -181,6 +200,11 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
       composition: compositionValue,
       variety: compositionValue === "Cisto" && variety.trim() ? variety.trim() : undefined,
       blend: blendComponents.length > 0 ? blendComponents : undefined,
+      winery: winery.trim() || undefined,
+      price: parseOptionalNumber(priceText),
+      alcohol: parseOptionalNumber(alcoholText),
+      purchasePlace: purchasePlace.trim() || undefined,
+      buyAgain: buyAgain || undefined,
       scores: saveScores ? scores : undefined,
       tastedAt: shownTastedAt || undefined,
       aromas: includeGrading ? selectedAromas : undefined,
@@ -213,6 +237,16 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
             aria-invalid={Boolean(errors.name)}
           />
           <FieldError message={errors.name} />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor={`${idPrefix}winery`}>Vinarija</Label>
+          <Input
+            id={`${idPrefix}winery`}
+            value={winery}
+            onChange={(e) => setWinery(e.target.value)}
+            className="bg-white/80"
+          />
         </div>
 
         <div className="space-y-2">
@@ -356,6 +390,55 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
             onChange={(e) => setRegion(e.target.value)}
             className="bg-white/80"
           />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label htmlFor={`${idPrefix}alcohol`}>Alkohol (%)</Label>
+            <Input
+              id={`${idPrefix}alcohol`}
+              inputMode="decimal"
+              placeholder="npr. 13,5"
+              value={alcoholText}
+              onChange={(e) => setAlcoholText(e.target.value)}
+              className="bg-white/80"
+              aria-invalid={Boolean(errors.alcohol)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor={`${idPrefix}price`}>Cena</Label>
+            <Input
+              id={`${idPrefix}price`}
+              inputMode="decimal"
+              placeholder="npr. 1200"
+              value={priceText}
+              onChange={(e) => setPriceText(e.target.value)}
+              className="bg-white/80"
+              aria-invalid={Boolean(errors.price)}
+            />
+          </div>
+          <div className="col-span-2 space-y-1">
+            <FieldError message={errors.alcohol} />
+            <FieldError message={errors.price} />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor={`${idPrefix}purchase-place`}>Mesto kupovine</Label>
+          <Input
+            id={`${idPrefix}purchase-place`}
+            placeholder="npr. vinarija, vinoteka, market"
+            value={purchasePlace}
+            onChange={(e) => setPurchasePlace(e.target.value)}
+            className="bg-white/80"
+          />
+        </div>
+
+        <div className="flex items-center justify-between gap-3 rounded-md border border-amber-900/20 bg-white/60 px-3 py-2">
+          <Label htmlFor={`${idPrefix}buy-again`} className="text-sm font-medium text-amber-950">
+            Kupio bih opet
+          </Label>
+          <Switch id={`${idPrefix}buy-again`} checked={buyAgain} onCheckedChange={setBuyAgain} />
         </div>
       </div>
 

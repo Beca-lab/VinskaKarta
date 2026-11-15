@@ -50,6 +50,13 @@ export interface Wine {
   composition?: Composition;
   variety?: string;
   blend?: BlendComponent[];
+  winery?: string;
+  /** Cena boce (bez oznake valute). */
+  price?: number;
+  /** Alkohol u procentima, npr. 13.5 */
+  alcohol?: number;
+  purchasePlace?: string;
+  buyAgain?: boolean;
   scores?: GradingScores;
   aromas?: AromaId[];
   rating?: number;
@@ -108,6 +115,20 @@ export const todayISO = (): string => {
 export const formatDate = (iso?: string): string => {
   const match = iso ? /^(\d{4})-(\d{2})-(\d{2})/.exec(iso) : null;
   return match ? `${match[3]}.${match[2]}.${match[1]}.` : "";
+};
+
+/** Broj za prikaz: bez nepotrebnih decimala, sa decimalnim zarezom (13.5 -> "13,5", 1200 -> "1200"). */
+export const formatNumber = (value: number): string => String(Math.round(value * 100) / 100).replace(".", ",");
+
+/**
+ * Čita broj koji je korisnik ukucao (prihvata i zarez i tačku).
+ * Prazno polje -> undefined; neispravan unos -> NaN.
+ */
+export const parseOptionalNumber = (text: string): number | undefined => {
+  const trimmed = text.trim();
+  if (trimmed === "") return undefined;
+  const n = Number(trimmed.replace(",", "."));
+  return Number.isFinite(n) ? n : NaN;
 };
 
 /** Broj sa decimalnim zarezom, npr. 78.5 -> "78,5". */

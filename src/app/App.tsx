@@ -253,16 +253,7 @@ export default function App() {
                   filteredAndSortedWines.map((wine) => (
                     <WineCard
                       key={wine.id}
-                      name={wine.name}
-                      type={wine.type}
-                      vintage={wine.vintage}
-                      region={wine.region}
-                      composition={wine.composition}
-                      variety={wine.variety}
-                      blend={wine.blend}
-                      aromas={wine.aromas}
-                      rating={wine.rating}
-                      tastedAt={wine.tastedAt}
+                      wine={wine}
                       onRate={() => handleRateWine(wine)}
                       onDelete={() => handleDeleteWine(wine.id)}
                     />
