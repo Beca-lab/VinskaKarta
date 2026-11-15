@@ -93,6 +93,9 @@ export const createDefaultDetailedEval = (): DetailedEvaluation => ({
 export const computeRating = (scores: GradingScores): number =>
   (scores.appearance + scores.taste + scores.finish + scores.overall) / 4;
 
+/** Broj sa decimalnim zarezom, npr. 78.5 -> "78,5". */
+export const formatDecimal = (value: number, digits = 1): string => value.toFixed(digits).replace(".", ",");
+
 // ---- Kupaža (procenti sorti) ----
 
 export type BlendComponentInput = {

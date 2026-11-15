@@ -301,7 +301,7 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
             </div>
 
             <div className="text-xs text-slate-600">
-              Ukupno: {Math.round(getBlendTotal(blend) * 10) / 10}% (maks 100%)
+              Ukupno: {String(Math.round(getBlendTotal(blend) * 10) / 10).replace(".", ",")}% (maks 100%)
             </div>
             <FieldError message={errors.blend} />
           </div>

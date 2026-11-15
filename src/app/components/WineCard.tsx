@@ -12,6 +12,8 @@ import { Button } from "./ui/button";
 
 import { AROMA_CATEGORIES, buildAromaLabelIndex } from "../../data/aromas";
 
+import { formatDecimal } from "../wine";
+
 
 
 function AromaTags({ aromas }: { aromas: string[] }) {
@@ -199,7 +201,7 @@ export function WineCard({ name, type, vintage, region, composition, variety, bl
 
                 <Star className="w-3.5 h-3.5 fill-purple-600 text-purple-600" />
 
-                <span className="text-sm font-bold text-purple-900">{rating.toFixed(1)}</span>
+                <span className="text-sm font-bold text-purple-900">{formatDecimal(rating)}</span>
 
               </div>
 
