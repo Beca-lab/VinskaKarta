@@ -245,6 +245,9 @@ export default function App() {
                         <SelectItem value="newest">Najnovije prvo</SelectItem>
                         <SelectItem value="best">Od najboljih ka najgorim</SelectItem>
                         <SelectItem value="worst">Od najgorih ka najboljim</SelectItem>
+                        <SelectItem value="name">Po imenu (A–Š)</SelectItem>
+                        <SelectItem value="vintage">Po godini berbe (novije prvo)</SelectItem>
+                        <SelectItem value="tasted">Po datumu degustacije (novije prvo)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
