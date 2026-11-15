@@ -182,7 +182,7 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
           <Label htmlFor={`${idPrefix}name`}>Ime Vina</Label>
           <Input
             id={`${idPrefix}name`}
-            placeholder={isEdit ? undefined : "npr. Château Margaux"}
+            placeholder={isEdit ? undefined : "npr. Cabernet Sauvignon Barrique"}
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="bg-white/80"

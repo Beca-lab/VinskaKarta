@@ -10,56 +10,8 @@ import { AROMA_CATEGORIES, buildAromaLabelIndex, type AromaId } from "../data/ar
 import { loadWines, saveWines } from "./storage";
 import { computeRating, type NewWine, type Wine } from "./wine";
 
-// Primeri vina za prvo pokretanje (dok još ništa nije sačuvano)
-const getDefaultWines = (): Wine[] => {
-  return [
-    {
-      id: 1,
-      name: "Château Margaux",
-      type: "Crveno Vino",
-      vintage: "2015",
-      region: "Bordeaux, Francuska",
-    },
-    {
-      id: 2,
-      name: "Cloudy Bay Sauvignon Blanc",
-      type: "Belo Vino",
-      vintage: "2022",
-      region: "Marlborough, Novi Zeland",
-    },
-    {
-      id: 3,
-      name: "Dom Pérignon",
-      type: "Šampanjac",
-      vintage: "2012",
-      region: "Épernay, Francuska",
-    },
-    {
-      id: 4,
-      name: "Opus One",
-      type: "Crveno Vino",
-      vintage: "2018",
-      region: "Napa Valley, SAD",
-    },
-    {
-      id: 5,
-      name: "Penfolds Grange",
-      type: "Crveno Vino",
-      vintage: "2016",
-      region: "Južna Australija",
-    },
-    {
-      id: 6,
-      name: "Sassicaia",
-      type: "Crveno Vino",
-      vintage: "2019",
-      region: "Toskana, Italija",
-    },
-  ];
-};
-
 export default function App() {
-  const [wines, setWines] = useState<Wine[]>(() => loadWines() ?? getDefaultWines());
+  const [wines, setWines] = useState<Wine[]>(() => loadWines() ?? []);
 
   const [selectedWine, setSelectedWine] = useState<Wine | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -315,7 +267,9 @@ export default function App() {
                   ))
                 ) : (
                   <div className="text-center py-8 text-slate-500 text-sm sm:text-base">
-                    Nema vina koja odgovaraju vašim filterima
+                    {wines.length === 0
+                      ? "Još nema vina. Dodirnite „Dodaj Novo Vino“ da unesete prvo."
+                      : "Nema vina koja odgovaraju vašim filterima"}
                   </div>
                 )}
               </div>
