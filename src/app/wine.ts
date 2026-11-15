@@ -55,9 +55,13 @@ export interface Wine {
   rating?: number;
   notes?: string;
   detailedEval?: DetailedEvaluation;
+  /** Kada je vino dodato u aplikaciju (ISO datum i vreme). Starija vina ga nemaju. */
+  createdAt?: string;
+  /** Datum degustacije, u obliku GGGG-MM-DD. */
+  tastedAt?: string;
 }
 
-export type NewWine = Omit<Wine, "id" | "rating">;
+export type NewWine = Omit<Wine, "id" | "rating" | "createdAt">;
 
 export const WINE_TYPES = [
   "Crveno vino",
@@ -92,6 +96,19 @@ export const createDefaultDetailedEval = (): DetailedEvaluation => ({
 /** Ukupna ocena = prosek 4 kategorije. Izabrane arome ne utiču na ocenu. */
 export const computeRating = (scores: GradingScores): number =>
   (scores.appearance + scores.taste + scores.finish + scores.overall) / 4;
+
+/** Današnji datum po lokalnom vremenu, u obliku GGGG-MM-DD. */
+export const todayISO = (): string => {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
+
+/** "2026-11-15" (ili ISO datum sa vremenom) -> "15.11.2026." Vraća "" ako datum nije ispravan. */
+export const formatDate = (iso?: string): string => {
+  const match = iso ? /^(\d{4})-(\d{2})-(\d{2})/.exec(iso) : null;
+  return match ? `${match[3]}.${match[2]}.${match[1]}.` : "";
+};
 
 /** Broj sa decimalnim zarezom, npr. 78.5 -> "78,5". */
 export const formatDecimal = (value: number, digits = 1): string => value.toFixed(digits).replace(".", ",");

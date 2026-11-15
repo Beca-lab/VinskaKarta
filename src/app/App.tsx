@@ -46,6 +46,7 @@ export default function App() {
         id: prev.length > 0 ? Math.max(...prev.map(w => w.id)) + 1 : 1,
         ...newWine,
         rating,
+        createdAt: new Date().toISOString(),
       };
       return [...prev, wine];
     });
@@ -261,6 +262,7 @@ export default function App() {
                       blend={wine.blend}
                       aromas={wine.aromas}
                       rating={wine.rating}
+                      tastedAt={wine.tastedAt}
                       onRate={() => handleRateWine(wine)}
                       onDelete={() => handleDeleteWine(wine.id)}
                     />

@@ -27,6 +27,7 @@ import {
   getBlendTotal,
   normalizeBlendAfterPercentChange,
   SCORE_CATEGORIES,
+  todayISO,
   WINE_TYPES,
   type BlendComponentInput,
   type Composition,
@@ -84,6 +85,11 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
   // Pri izmeni: vino dobija ocenu tek kad se pomeri neki klizač (inače ostaje neocenjeno)
   const [rated, setRated] = useState(Boolean(initial?.scores));
   const saveScores = isEdit ? rated : includeGrading;
+  // Datum degustacije: kad se vino prvi put ocenjuje podrazumeva se današnji;
+  // ranije ocenjena vina bez datuma ostaju bez njega dok se ne upiše ručno
+  const [tastedAt, setTastedAt] = useState(initial?.tastedAt ?? "");
+  const today = useMemo(() => todayISO(), []);
+  const shownTastedAt = tastedAt || (saveScores && !initial?.scores ? today : "");
   const [notes, setNotes] = useState(initial?.notes ?? "");
 
   const [showAromas, setShowAromas] = useState(false);
@@ -159,6 +165,7 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
       variety: compositionValue === "Cisto" && variety.trim() ? variety.trim() : undefined,
       blend: blendComponents.length > 0 ? blendComponents : undefined,
       scores: saveScores ? scores : undefined,
+      tastedAt: shownTastedAt || undefined,
       aromas: includeGrading ? selectedAromas : undefined,
       notes: includeGrading ? notes : undefined,
       detailedEval: includeGrading && detailedEnabled ? detailedEval : undefined,
@@ -442,6 +449,18 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
               Vino još nije ocenjeno. Pomerite bar jedan klizač da biste upisali ocenu.
             </p>
           ) : null}
+
+          <div className="space-y-2">
+            <Label htmlFor={`${idPrefix}tasted-at`}>Datum degustacije</Label>
+            <Input
+              id={`${idPrefix}tasted-at`}
+              type="date"
+              value={shownTastedAt}
+              max={today}
+              onChange={(e) => setTastedAt(e.target.value)}
+              className="bg-white/80"
+            />
+          </div>
 
           {/* Detaljna analiza */}
           <Button

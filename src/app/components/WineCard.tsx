@@ -12,7 +12,7 @@ import { Button } from "./ui/button";
 
 import { AROMA_CATEGORIES, buildAromaLabelIndex } from "../../data/aromas";
 
-import { formatDecimal } from "../wine";
+import { formatDate, formatDecimal } from "../wine";
 
 
 
@@ -53,6 +53,8 @@ interface WineCardProps {
 
   rating?: number;
 
+  tastedAt?: string;
+
   onRate: () => void;
 
   onDelete: () => void;
@@ -61,7 +63,7 @@ interface WineCardProps {
 
 
 
-export function WineCard({ name, type, vintage, region, composition, variety, blend, aromas, rating, onRate, onDelete }: WineCardProps) {
+export function WineCard({ name, type, vintage, region, composition, variety, blend, aromas, rating, tastedAt, onRate, onDelete }: WineCardProps) {
 
   const handleDelete = (e: MouseEvent) => {
 
@@ -193,7 +195,17 @@ export function WineCard({ name, type, vintage, region, composition, variety, bl
 
           <div className="flex items-end justify-between gap-2">
 
-            {region ? <p className="text-sm text-slate-600 flex-1">{region}</p> : <div className="flex-1" />}
+            <div className="flex-1 min-w-0">
+
+              {region ? <p className="text-sm text-slate-600">{region}</p> : null}
+
+              {formatDate(tastedAt) ? (
+
+                <p className="text-xs text-slate-500">Degustirano {formatDate(tastedAt)}</p>
+
+              ) : null}
+
+            </div>
 
             {rating !== undefined ? (
 
