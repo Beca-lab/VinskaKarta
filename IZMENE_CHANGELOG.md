@@ -1,5 +1,32 @@
 # Changelog - Poslednje Izmene
 
+## 🆕 Verzija 1.0.0 – grana `unapredjenja` (novembar 2026)
+
+Urađeno prema spisku u `predlozi/PREDLOZI.md` (oznake u zagradi su oznake stavki sa tog spiska).
+
+**Ispravljene greške**
+- Detaljna analiza se više ne briše pri ponovnom čuvanju vina (A1)
+- Izmena vina više ne upisuje ocenu 50 ako klizači nisu pomereni (A2); dugme „Ukloni ocenu“ (A3)
+- Ime vina je obavezno i pri izmeni (A4); neispravna kupaža i godina prikazuju poruku (A5, A7)
+- Sastav može da se poništi i pri dodavanju (A6)
+
+**Novo**
+- Pretraga, novi načini sortiranja, filter ocenjena/neocenjena, zaglavlje sa brojačima (C2, C4, C5, C6)
+- Stranica „Statistika“ (C7); do 6 aroma na kartici (C8)
+- Datum degustacije i datum dodavanja (D1); ocena uživo i dugmad +/− (D3, D4)
+- Nova polja: vinarija, cena, alkohol, mesto kupovine, „kupio bih opet“ (D5)
+- Predlozi pri kucanju (D7); tanini samo za crvena, ponuđene boje (D12)
+- Upozorenje pri zatvaranju sa nesačuvanim izmenama (D13)
+- Uvoz koji dodaje na postojeća vina (E5); izvoz u CSV za Excel (E6)
+- Potvrde u stilu aplikacije i „Poništi“ posle brisanja (E8)
+- Aplikacija počinje prazna, bez primera vina (B1); naziv „Wine Card“ svuda (B2)
+
+**Ispod haube**
+- Verzija formata podataka sa automatskim prevođenjem starih vina (D2) – `src/app/storage.ts`
+- Jedna zajednička forma za dodavanje i ocenjivanje (G1) – `WineForm.tsx`, `WineModal.tsx`
+- Verzija aplikacije na jednom mestu, u `package.json` (B6); `npm run check` (G5)
+- `.gitattributes`, `.cursor` van gita, uklonjeni ostaci Figma šablona (G3, B8, B7)
+
 ## 🆕 Novembar 2026
 
 - 🛟 **Rezervna kopija** - novo dugme "Rezervna Kopija": izvoz (kopiraj / preuzmi .json) i uvoz vina

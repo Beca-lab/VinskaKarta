@@ -64,13 +64,21 @@ Detaljno uputstvo: **IKONA_UPUTSTVO.md**
 /
 ├── src/
 │   └── app/
-│       ├── App.tsx              # Glavna komponenta
-│       ├── wine.ts              # Zajednički tipovi, formula ocene, logika kupaže
+│       ├── App.tsx              # Glavni ekran (lista, filteri)
+│       ├── wine.ts              # Tipovi, formula ocene, logika kupaže, formatiranje
+│       ├── storage.ts           # Čuvanje na uređaju, verzija formata, uvoz/izvoz
+│       ├── listing.ts           # Pretraga, filteri, sortiranje
+│       ├── stats.ts             # Računanje statistike
+│       ├── csv.ts               # Izvoz u CSV (Excel)
 │       └── components/
 │           ├── WineCard.tsx     # Kartica vina
-│           ├── GradingModal.tsx # Modal za ocenjivanje
-│           ├── AddWineModal.tsx # Modal za dodavanje vina
+│           ├── WineModal.tsx    # Prozor za dodavanje / izmenu i ocenjivanje
+│           ├── WineForm.tsx     # Zajednička forma (podaci o vinu + ocenjivanje)
+│           ├── DetailedEvalFields.tsx # Polja detaljne analize
+│           ├── StatsModal.tsx   # Statistika
 │           ├── BackupModal.tsx  # Izvoz / uvoz rezervne kopije
+│           ├── ConfirmDialog.tsx # Prozor za potvrdu
+│           ├── VineCorner.tsx   # Ukras u uglovima rama
 │           ├── aroma/           # Izbor aroma
 │           └── ui/              # Osnovne UI komponente (dugmad, dijalozi...)
 ├── src/data/aromas.ts           # Lista aroma po kategorijama
