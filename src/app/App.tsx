@@ -8,7 +8,7 @@ import { Button } from "./components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
 import { AROMA_CATEGORIES, buildAromaLabelIndex, type AromaId } from "../data/aromas";
 import { loadWines, saveWines } from "./storage";
-import { computeRating, type NewWine, type Wine } from "./wine";
+import { collectSuggestions, computeRating, type NewWine, type Wine } from "./wine";
 
 export default function App() {
   const [wines, setWines] = useState<Wine[]>(() => loadWines() ?? []);
@@ -23,6 +23,7 @@ export default function App() {
   const [sortOrder, setSortOrder] = useState<string>("newest");
 
   const aromaLabels = useMemo(() => buildAromaLabelIndex(AROMA_CATEGORIES), []);
+  const suggestions = useMemo(() => collectSuggestions(wines), [wines]);
 
   // Save wines to localStorage whenever they change
   useEffect(() => {
@@ -280,6 +281,7 @@ export default function App() {
       <WineModal
         mode="edit"
         wine={selectedWine}
+        suggestions={suggestions}
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={(values) => selectedWine && handleUpdateWine(selectedWine.id, values)}
@@ -288,6 +290,7 @@ export default function App() {
       {/* Dodavanje vina */}
       <WineModal
         mode="add"
+        suggestions={suggestions}
         open={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSubmit={handleAddWine}

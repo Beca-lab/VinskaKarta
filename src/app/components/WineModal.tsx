@@ -1,20 +1,22 @@
 import { Wine as WineIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { WineForm } from "./WineForm";
-import type { NewWine, Wine } from "../wine";
+import type { NewWine, Wine, WineSuggestions } from "../wine";
 
 interface WineModalProps {
   /** "add" = novo vino, "edit" = izmena i ocenjivanje postojećeg */
   mode: "add" | "edit";
   /** Vino koje se menja (samo u režimu "edit") */
   wine?: Wine | null;
+  /** Ranije unete vrednosti koje se nude kao predlozi pri kucanju */
+  suggestions?: WineSuggestions;
   open: boolean;
   onClose: () => void;
   onSubmit: (values: NewWine) => void;
 }
 
 /** Prozor za dodavanje novog vina ili izmenu/ocenjivanje postojećeg. */
-export function WineModal({ mode, wine, open, onClose, onSubmit }: WineModalProps) {
+export function WineModal({ mode, wine, suggestions, open, onClose, onSubmit }: WineModalProps) {
   const isEdit = mode === "edit";
   if (isEdit && !wine) return null;
 
@@ -34,6 +36,7 @@ export function WineModal({ mode, wine, open, onClose, onSubmit }: WineModalProp
           key={isEdit ? wine?.id : "new"}
           mode={mode}
           initial={isEdit ? wine : null}
+          suggestions={suggestions}
           onCancel={onClose}
           onSubmit={(values) => {
             onSubmit(values);

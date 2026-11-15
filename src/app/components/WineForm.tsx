@@ -39,6 +39,7 @@ import {
   type GradingScores,
   type NewWine,
   type Wine,
+  type WineSuggestions,
 } from "../wine";
 
 type FormErrors = Partial<Record<"name" | "blend" | "vintage" | "price" | "alcohol", string>>;
@@ -67,15 +68,28 @@ interface WineFormProps {
   mode: "add" | "edit";
   /** Vino koje se menja (samo u režimu "edit") */
   initial?: Wine | null;
+  /** Ranije unete vrednosti (regioni, sorte...) koje se nude dok korisnik kuca */
+  suggestions?: WineSuggestions;
   onSubmit: (values: NewWine) => void;
   onCancel: () => void;
+}
+
+/** Lista predloga za tekstualno polje (polje je povezuje preko atributa `list`). */
+function Suggestions({ id, values }: { id: string; values?: string[] }) {
+  return (
+    <datalist id={id}>
+      {(values ?? []).map((value) => (
+        <option key={value} value={value} />
+      ))}
+    </datalist>
+  );
 }
 
 /**
  * Zajednička forma za dodavanje i za izmenu/ocenjivanje vina.
  * Forma se pravi iznova svaki put kad se prozor otvori, pa početno stanje čita iz `initial`.
  */
-export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
+export function WineForm({ mode, initial, suggestions, onSubmit, onCancel }: WineFormProps) {
   const isEdit = mode === "edit";
   const idPrefix = isEdit ? "edit-" : "";
 
@@ -222,6 +236,11 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
       noValidate
       className={isEdit ? "space-y-6 py-4" : "space-y-4 py-4"}
     >
+      <Suggestions id={`${idPrefix}dl-regions`} values={suggestions?.regions} />
+      <Suggestions id={`${idPrefix}dl-varieties`} values={suggestions?.varieties} />
+      <Suggestions id={`${idPrefix}dl-wineries`} values={suggestions?.wineries} />
+      <Suggestions id={`${idPrefix}dl-places`} values={suggestions?.places} />
+
       {/* ---------- Podaci o vinu ---------- */}
       <div className={isEdit ? "space-y-4 pb-4 border-b border-amber-900/20" : "space-y-4"}>
         {isEdit ? <h3 className="font-semibold text-amber-950">Informacije o vinu</h3> : null}
@@ -243,6 +262,7 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
           <Label htmlFor={`${idPrefix}winery`}>Vinarija</Label>
           <Input
             id={`${idPrefix}winery`}
+            list={`${idPrefix}dl-wineries`}
             value={winery}
             onChange={(e) => setWinery(e.target.value)}
             className="bg-white/80"
@@ -293,6 +313,7 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
             <Input
               id={`${idPrefix}variety`}
               placeholder="npr. Cabernet Sauvignon"
+              list={`${idPrefix}dl-varieties`}
               value={variety}
               onChange={(e) => setVariety(e.target.value)}
               className="bg-white/80"
@@ -318,6 +339,7 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
                 <div key={index} className="grid grid-cols-[1fr_90px_36px] gap-2">
                   <Input
                     placeholder="npr. Merlot"
+                    list={`${idPrefix}dl-varieties`}
                     value={item.grape}
                     onChange={(e) => {
                       const next = blend.map((x) => ({ ...x }));
@@ -386,6 +408,7 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
           <Input
             id={`${idPrefix}region`}
             placeholder={isEdit ? undefined : "npr. Bordeaux, Francuska"}
+            list={`${idPrefix}dl-regions`}
             value={region}
             onChange={(e) => setRegion(e.target.value)}
             className="bg-white/80"
@@ -428,6 +451,7 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
           <Input
             id={`${idPrefix}purchase-place`}
             placeholder="npr. vinarija, vinoteka, market"
+            list={`${idPrefix}dl-places`}
             value={purchasePlace}
             onChange={(e) => setPurchasePlace(e.target.value)}
             className="bg-white/80"

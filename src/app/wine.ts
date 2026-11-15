@@ -104,6 +104,30 @@ export const createDefaultDetailedEval = (): DetailedEvaluation => ({
 export const computeRating = (scores: GradingScores): number =>
   (scores.appearance + scores.taste + scores.finish + scores.overall) / 4;
 
+/** Ranije unete vrednosti koje se nude kao predlozi pri kucanju. */
+export interface WineSuggestions {
+  regions: string[];
+  varieties: string[];
+  wineries: string[];
+  places: string[];
+}
+
+const uniqueSorted = (values: Array<string | undefined>): string[] => {
+  const byKey = new Map<string, string>();
+  for (const value of values) {
+    const trimmed = value?.trim();
+    if (trimmed && !byKey.has(trimmed.toLowerCase())) byKey.set(trimmed.toLowerCase(), trimmed);
+  }
+  return Array.from(byKey.values()).sort((a, b) => a.localeCompare(b, "sr"));
+};
+
+export const collectSuggestions = (wines: Wine[]): WineSuggestions => ({
+  regions: uniqueSorted(wines.map((w) => w.region)),
+  varieties: uniqueSorted(wines.flatMap((w) => [w.variety, ...(w.blend ?? []).map((b) => b.grape)])),
+  wineries: uniqueSorted(wines.map((w) => w.winery)),
+  places: uniqueSorted(wines.map((w) => w.purchasePlace)),
+});
+
 /** Današnji datum po lokalnom vremenu, u obliku GGGG-MM-DD. */
 export const todayISO = (): string => {
   const d = new Date();
