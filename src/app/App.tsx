@@ -4,10 +4,12 @@ import { WineModal } from "./components/WineModal";
 import { BackupModal } from "./components/BackupModal";
 import { VineCorner } from "./components/VineCorner";
 import { ConfirmDialog } from "./components/ConfirmDialog";
-import { Wine as WineIcon, Award, Plus, ListFilter, DatabaseBackup } from "lucide-react";
+import { Wine as WineIcon, Award, Plus, ListFilter, DatabaseBackup, Search } from "lucide-react";
 import { Button } from "./components/ui/button";
+import { Input } from "./components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
 import { AROMA_CATEGORIES, buildAromaLabelIndex, type AromaId } from "../data/aromas";
+import { DEFAULT_LIST_OPTIONS, filterAndSortWines, type SortOrder } from "./listing";
 import { loadWines, saveWines } from "./storage";
 import { collectSuggestions, computeRating, type NewWine, type Wine } from "./wine";
 
@@ -23,7 +25,8 @@ export default function App() {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [regionFilter, setRegionFilter] = useState<string>("all");
   const [aromaFilter, setAromaFilter] = useState<AromaId | "all">("all");
-  const [sortOrder, setSortOrder] = useState<string>("newest");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const aromaLabels = useMemo(() => buildAromaLabelIndex(AROMA_CATEGORIES), []);
   const suggestions = useMemo(() => collectSuggestions(wines), [wines]);
@@ -110,31 +113,14 @@ export default function App() {
   }, [wines]);
 
   // Filter and sort wines
-  const filteredAndSortedWines = wines
-    .filter(wine => {
-      const typeMatch = typeFilter === "all" || wine.type === typeFilter;
-      const regionMatch = regionFilter === "all" || wine.region === regionFilter;
-      const aromaMatch = aromaFilter === "all" || (wine.aromas && wine.aromas.includes(aromaFilter));
-      return typeMatch && regionMatch && aromaMatch;
-    })
-    .sort((a, b) => {
-      if (sortOrder === "newest") {
-        return b.id - a.id; // Newest first
-      } else if (sortOrder === "best") {
-        // Best to worst (rated wines first, then by rating)
-        if (a.rating === undefined && b.rating === undefined) return b.id - a.id;
-        if (a.rating === undefined) return 1;
-        if (b.rating === undefined) return -1;
-        return b.rating - a.rating;
-      } else if (sortOrder === "worst") {
-        // Worst to best
-        if (a.rating === undefined && b.rating === undefined) return b.id - a.id;
-        if (a.rating === undefined) return 1;
-        if (b.rating === undefined) return -1;
-        return a.rating - b.rating;
-      }
-      return 0;
-    });
+  const filteredAndSortedWines = filterAndSortWines(wines, {
+    ...DEFAULT_LIST_OPTIONS,
+    search: searchQuery,
+    type: typeFilter,
+    region: regionFilter,
+    aroma: aromaFilter,
+    sort: sortOrder,
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-900 via-amber-800 to-stone-900 p-3 sm:p-4 md:p-8">
@@ -189,6 +175,17 @@ export default function App() {
                   <ListFilter className="w-4 h-4 text-amber-900" />
                   <h2 className="text-sm sm:text-base font-semibold text-amber-950">Filteri i sortiranje</h2>
                 </div>
+                <div className="relative mb-3">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input
+                    type="search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Pretraži po imenu, vinariji, regionu, sorti..."
+                    aria-label="Pretraga vina"
+                    className="bg-white/80 h-10 sm:h-11 pl-9"
+                  />
+                </div>
                 <div className="grid grid-cols-1 gap-3">
                   <div>
                     <label className="text-xs sm:text-sm text-slate-600 mb-1 block">Tip vina</label>
@@ -240,7 +237,7 @@ export default function App() {
                   
                   <div>
                     <label className="text-xs sm:text-sm text-slate-600 mb-1 block">Sortiraj po</label>
-                    <Select value={sortOrder} onValueChange={setSortOrder}>
+                    <Select value={sortOrder} onValueChange={(value) => setSortOrder(value as SortOrder)}>
                       <SelectTrigger className="bg-white/80 h-10 sm:h-11">
                         <SelectValue />
                       </SelectTrigger>
@@ -288,7 +285,7 @@ export default function App() {
                   <div className="text-center py-8 text-slate-500 text-sm sm:text-base">
                     {wines.length === 0
                       ? "Još nema vina. Dodirnite „Dodaj novo vino“ da unesete prvo."
-                      : "Nema vina koja odgovaraju vašim filterima"}
+                      : "Nema vina koja odgovaraju pretrazi i filterima"}
                   </div>
                 )}
               </div>
