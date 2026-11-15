@@ -1,7 +1,7 @@
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import type { DetailedEvaluation } from "../wine";
+import { colorSuggestions, hasTannins, type DetailedEvaluation } from "../wine";
 
 type Option = { value: string; label: string };
 
@@ -51,7 +51,7 @@ const SECTIONS: Section[] = [
       { key: "sweetness", label: "Slatkoća", options: opts("Suvo", "Polusuvo", "Poluslatko", "Slatko") },
       { key: "acidity", label: "Kiselina", options: LEVELS },
       { key: "body", label: "Telo", options: opts("Lagano", "Srednje", "Puno") },
-      { key: "tannins", label: "Tanini (za crvena)", options: opts("Nema", "Nizak", "Srednji", "Visok") },
+      { key: "tannins", label: "Tanini", options: opts("Nema", "Nizak", "Srednji", "Visok") },
     ],
   },
   {
@@ -86,10 +86,16 @@ const SECTIONS: Section[] = [
 interface DetailedEvalFieldsProps {
   value: DetailedEvaluation;
   onChange: (value: DetailedEvaluation) => void;
+  /** Tip vina: određuje da li se prikazuju tanini i koje se boje nude */
+  wineType?: string;
 }
 
+const COLOR_LIST_ID = "dl-wine-colors";
+
 /** Polja detaljne analize (izgled, miris, ukus, zaključak). Ne utiču na ocenu. */
-export function DetailedEvalFields({ value, onChange }: DetailedEvalFieldsProps) {
+export function DetailedEvalFields({ value, onChange, wineType }: DetailedEvalFieldsProps) {
+  const isVisible = (field: Field) => field.key !== "tannins" || hasTannins(wineType);
+
   const getValue = (section: Section, field: Field): string =>
     (value[section.id] as Record<string, string | undefined>)[field.key] ?? "";
 
@@ -102,11 +108,16 @@ export function DetailedEvalFields({ value, onChange }: DetailedEvalFieldsProps)
 
   return (
     <div className="space-y-4">
+      <datalist id={COLOR_LIST_ID}>
+        {colorSuggestions(wineType).map((color) => (
+          <option key={color} value={color} />
+        ))}
+      </datalist>
       {SECTIONS.map((section) => (
         <div key={section.id} className="space-y-3">
           <h5 className="text-sm font-medium text-purple-900">{section.title}</h5>
           <div className="grid grid-cols-2 gap-2">
-            {section.fields.map((field) => (
+            {section.fields.filter(isVisible).map((field) => (
               <div key={field.key} className={field.wide ? "space-y-1 col-span-2" : "space-y-1"}>
                 <Label className="text-xs">{field.label}</Label>
                 {field.options ? (
@@ -127,6 +138,7 @@ export function DetailedEvalFields({ value, onChange }: DetailedEvalFieldsProps)
                     value={getValue(section, field)}
                     onChange={(e) => setValue(section, field, e.target.value)}
                     placeholder={field.placeholder}
+                    list={field.key === "color" ? COLOR_LIST_ID : undefined}
                     className="bg-white/80 text-xs h-8"
                   />
                 )}

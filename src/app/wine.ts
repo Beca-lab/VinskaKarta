@@ -79,6 +79,21 @@ export const WINE_TYPES = [
   "Desertno vino",
 ] as const;
 
+/** Tanini se beleže samo za crvena vina (i dok tip još nije izabran). */
+export const hasTannins = (type?: string): boolean => !type || type.toLowerCase().startsWith("crveno");
+
+/** Uobičajeni nazivi boja, nude se kao predlog prema tipu vina. */
+export const colorSuggestions = (type?: string): string[] => {
+  const white = ["Limun-zelena", "Limun-žuta", "Zlatna", "Ćilibarna"];
+  const rose = ["Ružičasta", "Losos", "Narandžasta"];
+  const red = ["Purpurna", "Rubin", "Granat", "Ciglasta"];
+  const t = (type ?? "").toLowerCase();
+  if (t.startsWith("crveno")) return red;
+  if (t.startsWith("belo")) return white;
+  if (t.startsWith("roze")) return rose;
+  return [...white, ...rose, ...red];
+};
+
 export const SCORE_CATEGORIES: Array<{ key: keyof GradingScores; label: string; description: string }> = [
   { key: "appearance", label: "Izgled", description: "Bistrina, boja i viskoznost" },
   { key: "taste", label: "Ukus", description: "Aroma, balans i kompleksnost" },

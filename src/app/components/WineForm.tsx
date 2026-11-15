@@ -28,6 +28,7 @@ import {
   formatDecimal,
   formatNumber,
   getBlendTotal,
+  hasTannins,
   normalizeBlendAfterPercentChange,
   parseOptionalNumber,
   SCORE_CATEGORIES,
@@ -223,7 +224,12 @@ export function WineForm({ mode, initial, suggestions, onSubmit, onCancel }: Win
       tastedAt: shownTastedAt || undefined,
       aromas: includeGrading ? selectedAromas : undefined,
       notes: includeGrading ? notes : undefined,
-      detailedEval: includeGrading && detailedEnabled ? detailedEval : undefined,
+      detailedEval:
+        includeGrading && detailedEnabled
+          ? hasTannins(type)
+            ? detailedEval
+            : { ...detailedEval, taste: { ...detailedEval.taste, tannins: undefined } }
+          : undefined,
     };
 
     onSubmit(values);
@@ -638,7 +644,7 @@ export function WineForm({ mode, initial, suggestions, onSubmit, onCancel }: Win
                   Obriši analizu
                 </Button>
               </div>
-              <DetailedEvalFields value={detailedEval} onChange={setDetailedEval} />
+              <DetailedEvalFields value={detailedEval} onChange={setDetailedEval} wineType={type} />
             </div>
           )}
 
