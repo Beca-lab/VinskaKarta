@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { Minus, Plus, Star, Trash2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -73,6 +73,8 @@ interface WineFormProps {
   suggestions?: WineSuggestions;
   onSubmit: (values: NewWine) => void;
   onCancel: () => void;
+  /** Javlja da li u formi ima nesačuvanih izmena (za upozorenje pri zatvaranju) */
+  onDirtyChange?: (dirty: boolean) => void;
 }
 
 /** Lista predloga za tekstualno polje (polje je povezuje preko atributa `list`). */
@@ -90,7 +92,7 @@ function Suggestions({ id, values }: { id: string; values?: string[] }) {
  * Zajednička forma za dodavanje i za izmenu/ocenjivanje vina.
  * Forma se pravi iznova svaki put kad se prozor otvori, pa početno stanje čita iz `initial`.
  */
-export function WineForm({ mode, initial, suggestions, onSubmit, onCancel }: WineFormProps) {
+export function WineForm({ mode, initial, suggestions, onSubmit, onCancel, onDirtyChange }: WineFormProps) {
   const isEdit = mode === "edit";
   const idPrefix = isEdit ? "edit-" : "";
 
@@ -143,6 +145,18 @@ export function WineForm({ mode, initial, suggestions, onSubmit, onCancel }: Win
   const [detailedEval, setDetailedEval] = useState<DetailedEvaluation>(
     () => initial?.detailedEval ?? createDefaultDetailedEval()
   );
+
+  // ---- Nesačuvane izmene: poredi se trenutno stanje forme sa stanjem pri otvaranju ----
+  const snapshot = JSON.stringify([
+    name, type, vintage, region, winery, priceText, alcoholText, purchasePlace, buyAgain,
+    composition, variety, blend, includeGrading, scores, rated, tastedAt, notes,
+    selectedAromas, detailedEnabled, detailedEval,
+  ]);
+  const initialSnapshot = useRef(snapshot);
+  const dirty = snapshot !== initialSnapshot.current;
+  useEffect(() => {
+    onDirtyChange?.(dirty);
+  }, [dirty, onDirtyChange]);
 
   const setScore = (key: keyof GradingScores, value: number) => {
     setScores((prev) => ({ ...prev, [key]: Math.max(0, Math.min(100, value)) }));
