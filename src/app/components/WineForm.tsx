@@ -123,6 +123,14 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
       }
     }
 
+    if (vintage.trim()) {
+      const year = Number(vintage);
+      const maxYear = new Date().getFullYear();
+      if (!Number.isInteger(year) || year < 1900 || year > maxYear) {
+        found.vintage = `Godina mora biti ceo broj između 1900 i ${maxYear}.`;
+      }
+    }
+
     setErrors(found);
     if (Object.keys(found).length > 0) {
       // Prikaži prvu grešku (forma je duga, pa greška može biti van ekrana)
@@ -310,7 +318,9 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
             className="bg-white/80"
             min="1900"
             max={new Date().getFullYear()}
+            aria-invalid={Boolean(errors.vintage)}
           />
+          <FieldError message={errors.vintage} />
         </div>
 
         <div className="space-y-2">
