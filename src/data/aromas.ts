@@ -57,12 +57,18 @@ export const AROMA_CATEGORIES: AromaCategory[] = [
         ],
       },
       {
-        id: "stone_fruits",
-        label: "Koštunavo jabučasto voće",
+        id: "pome_fruits",
+        label: "Jabučasto voće",
         aromas: [
           { id: "apple", label: "Jabuka" },
           { id: "pear", label: "Kruška" },
           { id: "quince", label: "Dunja" },
+        ],
+      },
+      {
+        id: "stone_fruits",
+        label: "Koštunavo voće",
+        aromas: [
           { id: "peach", label: "Breskva" },
           { id: "apricot", label: "Kajsija" },
           { id: "cherry", label: "Trešnja" },

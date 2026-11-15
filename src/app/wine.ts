@@ -64,7 +64,7 @@ export const WINE_TYPES = [
   "Belo Vino",
   "Roze Vino",
   "Šampanjac",
-  "Pjenušavo Vino",
+  "Penušavo Vino",
   "Desertno Vino",
 ] as const;
 

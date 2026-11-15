@@ -106,7 +106,7 @@ export function AromaSelector({
       {/* Header with title and minimize button */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-base font-semibold text-amber-950">Aromas</span>
+          <span className="text-base font-semibold text-amber-950">Arome</span>
           {selectedAromas.length > 0 && (
             <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-purple-900 text-white text-xs font-medium">
               {selectedAromas.length}
