@@ -182,8 +182,8 @@ export default function App() {
                 <p className="text-sm sm:text-base text-slate-600">Profesionalna degustacija i evaluacija</p>
                 {stats.total > 0 ? (
                   <p className="mt-2 text-xs sm:text-sm text-amber-900">
-                    {stats.total} vina · {stats.rated} ocenjeno
-                    {stats.average !== undefined ? ` · prosek ${formatDecimal(stats.average)}` : ""}
+                    Vina: {stats.total} · Ocenjeno: {stats.rated}
+                    {stats.average !== undefined ? ` · Prosek: ${formatDecimal(stats.average)}` : ""}
                   </p>
                 ) : null}
               </div>

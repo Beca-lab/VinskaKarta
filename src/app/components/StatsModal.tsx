@@ -50,7 +50,7 @@ function GroupList({ groups }: { groups: GroupStat[] }) {
         <BarRow
           key={group.label}
           label={group.label}
-          hint={`${group.count} vina`}
+          hint={`vina: ${group.count}`}
           value={group.average !== undefined ? formatDecimal(group.average) : "–"}
           fraction={(group.average ?? 0) / 100}
         />
@@ -89,8 +89,8 @@ export function StatsModal({ open, onClose, wines }: StatsModalProps) {
             <DialogTitle className="text-amber-950">Statistika</DialogTitle>
           </div>
           <DialogDescription>
-            {summary.total} vina · {summary.rated} ocenjeno
-            {summary.average !== undefined ? ` · prosek ${formatDecimal(summary.average)}` : ""}
+            Vina: {summary.total} · Ocenjeno: {summary.rated}
+            {summary.average !== undefined ? ` · Prosek: ${formatDecimal(summary.average)}` : ""}
           </DialogDescription>
         </DialogHeader>
 
