@@ -8,25 +8,11 @@ import { Wine as WineIcon, Award, Plus, ListFilter, DatabaseBackup } from "lucid
 import { Button } from "./components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
 import { AROMA_CATEGORIES, buildAromaLabelIndex, type AromaId } from "../data/aromas";
+import { loadWines, saveWines } from "./storage";
 import { computeRating, type DetailedEvaluation, type GradingScores, type NewWine, type Wine } from "./wine";
 
-const STORAGE_KEY = 'wine-app-data';
-
-// Load wines from localStorage
-const loadWinesFromStorage = (): Wine[] => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed)) {
-        return parsed as Wine[];
-      }
-    }
-  } catch (error) {
-    console.error('Error loading wines from storage:', error);
-  }
-  
-  // Default wines if nothing in storage
+// Primeri vina za prvo pokretanje (dok još ništa nije sačuvano)
+const getDefaultWines = (): Wine[] => {
   return [
     {
       id: 1,
@@ -74,7 +60,7 @@ const loadWinesFromStorage = (): Wine[] => {
 };
 
 export default function App() {
-  const [wines, setWines] = useState<Wine[]>(loadWinesFromStorage);
+  const [wines, setWines] = useState<Wine[]>(() => loadWines() ?? getDefaultWines());
 
   const [selectedWine, setSelectedWine] = useState<Wine | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -89,11 +75,7 @@ export default function App() {
 
   // Save wines to localStorage whenever they change
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(wines));
-    } catch (error) {
-      console.error('Error saving wines to storage:', error);
-    }
+    saveWines(wines);
   }, [wines]);
 
   const handleRateWine = (wine: Wine) => {

@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { Copy, Download, FileUp, Upload } from "lucide-react";
 import type { Wine } from "../wine";
+import { parseWineData, serializeBackup } from "../storage";
 
 interface BackupModalProps {
   open: boolean;
@@ -13,49 +14,6 @@ interface BackupModalProps {
 }
 
 type Status = { kind: "ok" | "error"; text: string } | null;
-
-const buildExportJson = (wines: Wine[]) =>
-  JSON.stringify(
-    { app: "vinska-karta", version: 1, exportedAt: new Date().toISOString(), wines },
-    null,
-    2
-  );
-
-/** Prihvata i novi format ({ wines: [...] }) i običan niz vina (stari localStorage format). */
-export const parseBackup = (text: string): Wine[] => {
-  let data: unknown;
-  try {
-    data = JSON.parse(text);
-  } catch {
-    throw new Error("Tekst nije ispravan JSON.");
-  }
-  const list = Array.isArray(data)
-    ? data
-    : data && typeof data === "object" && Array.isArray((data as { wines?: unknown }).wines)
-      ? (data as { wines: unknown[] }).wines
-      : null;
-  if (!list) throw new Error("U rezervnoj kopiji nije pronađena lista vina.");
-
-  const wines: Wine[] = [];
-  const usedIds = new Set<number>();
-  let nextId = 1;
-  for (const item of list) {
-    if (!item || typeof item !== "object") continue;
-    const w = item as Partial<Wine>;
-    if (typeof w.name !== "string" || !w.name.trim()) continue;
-    let id = typeof w.id === "number" && Number.isFinite(w.id) ? w.id : NaN;
-    if (Number.isNaN(id) || usedIds.has(id)) {
-      while (usedIds.has(nextId)) nextId++;
-      id = nextId;
-    }
-    usedIds.add(id);
-    wines.push({ ...(w as Wine), id });
-  }
-  if (list.length > 0 && wines.length === 0) {
-    throw new Error("Nijedno vino u rezervnoj kopiji nema ispravan format.");
-  }
-  return wines;
-};
 
 const copyToClipboard = async (text: string) => {
   try {
@@ -94,7 +52,7 @@ export function BackupModal({ open, onClose, wines, onImport }: BackupModalProps
   };
 
   const handleCopy = async () => {
-    const ok = await copyToClipboard(buildExportJson(wines));
+    const ok = await copyToClipboard(serializeBackup(wines));
     setStatus(
       ok
         ? { kind: "ok", text: `Kopirano ${wines.length} vina. Nalepite tekst u beleške, e-mail ili poruku i sačuvajte ga.` }
@@ -103,7 +61,7 @@ export function BackupModal({ open, onClose, wines, onImport }: BackupModalProps
   };
 
   const handleDownload = () => {
-    const blob = new Blob([buildExportJson(wines)], { type: "application/json" });
+    const blob = new Blob([serializeBackup(wines)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     const date = new Date().toISOString().slice(0, 10);
@@ -118,7 +76,7 @@ export function BackupModal({ open, onClose, wines, onImport }: BackupModalProps
 
   const doImport = (text: string) => {
     try {
-      const parsed = parseBackup(text);
+      const parsed = parseWineData(text);
       const ok = window.confirm(
         `Uvesti ${parsed.length} vina? Ovo će ZAMENITI trenutnu listu (${wines.length} vina).`
       );
