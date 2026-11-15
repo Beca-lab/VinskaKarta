@@ -9,7 +9,7 @@ import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
 import { AROMA_CATEGORIES, buildAromaLabelIndex, type AromaId } from "../data/aromas";
-import { DEFAULT_LIST_OPTIONS, filterAndSortWines, type SortOrder } from "./listing";
+import { DEFAULT_LIST_OPTIONS, filterAndSortWines, type RatedFilter, type SortOrder } from "./listing";
 import { loadWines, saveWines } from "./storage";
 import { collectSuggestions, computeRating, type NewWine, type Wine } from "./wine";
 
@@ -27,6 +27,7 @@ export default function App() {
   const [aromaFilter, setAromaFilter] = useState<AromaId | "all">("all");
   const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
   const [searchQuery, setSearchQuery] = useState("");
+  const [ratedFilter, setRatedFilter] = useState<RatedFilter>("all");
 
   const aromaLabels = useMemo(() => buildAromaLabelIndex(AROMA_CATEGORIES), []);
   const suggestions = useMemo(() => collectSuggestions(wines), [wines]);
@@ -91,6 +92,8 @@ export default function App() {
     setTypeFilter("all");
     setRegionFilter("all");
     setAromaFilter("all");
+    setRatedFilter("all");
+    setSearchQuery("");
   };
 
   // Get unique types, regions and aromas for filters
@@ -119,6 +122,7 @@ export default function App() {
     type: typeFilter,
     region: regionFilter,
     aroma: aromaFilter,
+    rated: ratedFilter,
     sort: sortOrder,
   });
 
@@ -186,7 +190,7 @@ export default function App() {
                     className="bg-white/80 h-10 sm:h-11 pl-9"
                   />
                 </div>
-                <div className="grid grid-cols-1 gap-3">
+                <div className="grid grid-cols-2 gap-3 [&>div]:min-w-0 [&_button]:min-w-0 [&_button]:overflow-hidden">
                   <div>
                     <label className="text-xs sm:text-sm text-slate-600 mb-1 block">Tip vina</label>
                     <Select value={typeFilter} onValueChange={setTypeFilter}>
@@ -236,6 +240,20 @@ export default function App() {
                   </div>
                   
                   <div>
+                    <label className="text-xs sm:text-sm text-slate-600 mb-1 block">Ocena</label>
+                    <Select value={ratedFilter} onValueChange={(value) => setRatedFilter(value as RatedFilter)}>
+                      <SelectTrigger className="bg-white/80 h-10 sm:h-11">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Sva vina</SelectItem>
+                        <SelectItem value="rated">Samo ocenjena</SelectItem>
+                        <SelectItem value="unrated">Samo neocenjena</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="col-span-2">
                     <label className="text-xs sm:text-sm text-slate-600 mb-1 block">Sortiraj po</label>
                     <Select value={sortOrder} onValueChange={(value) => setSortOrder(value as SortOrder)}>
                       <SelectTrigger className="bg-white/80 h-10 sm:h-11">
