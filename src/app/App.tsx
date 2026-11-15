@@ -4,7 +4,8 @@ import { WineModal } from "./components/WineModal";
 import { BackupModal } from "./components/BackupModal";
 import { VineCorner } from "./components/VineCorner";
 import { ConfirmDialog } from "./components/ConfirmDialog";
-import { Wine as WineIcon, Award, Plus, ListFilter, DatabaseBackup, Search } from "lucide-react";
+import { StatsModal } from "./components/StatsModal";
+import { Wine as WineIcon, Award, Plus, ListFilter, DatabaseBackup, Search, ChartColumn } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
@@ -26,6 +27,7 @@ export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
+  const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
   const [wineToDelete, setWineToDelete] = useState<Wine | null>(null);
   const [lastDeleted, setLastDeleted] = useState<{ wine: Wine; index: number } | null>(null);
   const [typeFilter, setTypeFilter] = useState<string>("all");
@@ -286,20 +288,28 @@ export default function App() {
               </div>
 
               {/* Add Wine + Backup Buttons */}
-              <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row justify-center gap-2">
-                <Button 
+              <div className="mb-4 sm:mb-6 grid grid-cols-2 gap-2">
+                <Button
                   onClick={() => setIsAddModalOpen(true)}
-                  className="bg-purple-900 hover:bg-purple-800 shadow-md w-full sm:w-auto h-11 sm:h-10"
+                  className="col-span-2 bg-purple-900 hover:bg-purple-800 shadow-md h-11"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Dodaj novo vino
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => setIsBackupModalOpen(true)}
-                  className="bg-white/70 border-amber-900/30 text-amber-950 shadow-sm w-full sm:w-auto h-11 sm:h-10"
+                  onClick={() => setIsStatsModalOpen(true)}
+                  className="bg-white/70 border-amber-900/30 text-amber-950 shadow-sm h-11 min-w-0"
                 >
-                  <DatabaseBackup className="w-4 h-4 mr-2" />
+                  <ChartColumn className="w-4 h-4 mr-2 shrink-0" />
+                  Statistika
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsBackupModalOpen(true)}
+                  className="bg-white/70 border-amber-900/30 text-amber-950 shadow-sm h-11 min-w-0"
+                >
+                  <DatabaseBackup className="w-4 h-4 mr-2 shrink-0" />
                   Rezervna kopija
                 </Button>
               </div>
@@ -383,6 +393,9 @@ export default function App() {
           </Button>
         </div>
       ) : null}
+
+      {/* Statistika */}
+      <StatsModal open={isStatsModalOpen} onClose={() => setIsStatsModalOpen(false)} wines={wines} />
 
       {/* Backup Modal */}
       <BackupModal
