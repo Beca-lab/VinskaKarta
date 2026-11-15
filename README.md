@@ -135,6 +135,14 @@ npx cap sync
 
 Zatim u Android Studio kliknite zeleno ▶ Run dugme.
 
+### Verzija aplikacije
+
+Verzija stoji na jednom mestu: polje `"version"` u `package.json` (npr. `1.0.0`).
+Android je čita odatle pri build-u (`versionName` = `1.0.0`, `versionCode` = `10000`).
+
+Pre svakog novog izdanja za Google Play povećajte verziju (npr. `1.0.0` → `1.0.1`),
+jer Play ne prihvata isti `versionCode` dva puta.
+
 ### Pravljenje APK fajla
 
 U Android Studio:
