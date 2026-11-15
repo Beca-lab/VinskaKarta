@@ -70,6 +70,9 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
   // ---- Ocenjivanje ----
   const [includeGrading, setIncludeGrading] = useState(isEdit);
   const [scores, setScores] = useState<GradingScores>(initial?.scores ?? DEFAULT_SCORES);
+  // Pri izmeni: vino dobija ocenu tek kad se pomeri neki klizač (inače ostaje neocenjeno)
+  const [rated, setRated] = useState(Boolean(initial?.scores));
+  const saveScores = isEdit ? rated : includeGrading;
   const [notes, setNotes] = useState(initial?.notes ?? "");
 
   const [showAromas, setShowAromas] = useState(false);
@@ -121,7 +124,7 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
       composition: compositionValue,
       variety: compositionValue === "Cisto" && variety.trim() ? variety.trim() : undefined,
       blend: blendComponents.length > 0 ? blendComponents : undefined,
-      scores: includeGrading ? scores : undefined,
+      scores: saveScores ? scores : undefined,
       aromas: includeGrading ? selectedAromas : undefined,
       notes: includeGrading ? notes : undefined,
       detailedEval: includeGrading && detailedEnabled ? detailedEval : undefined,
@@ -363,7 +366,10 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
               <div className="flex items-center gap-4">
                 <Slider
                   value={[scores[category.key]]}
-                  onValueChange={(value: number[]) => setScores({ ...scores, [category.key]: value[0] })}
+                  onValueChange={(value: number[]) => {
+                    setScores({ ...scores, [category.key]: value[0] });
+                    setRated(true);
+                  }}
                   max={100}
                   step={1}
                   className="flex-1"
@@ -372,6 +378,12 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
               </div>
             </div>
           ))}
+
+          {isEdit && !rated ? (
+            <p className="text-xs text-slate-600 rounded-md border border-amber-900/20 bg-white/60 px-3 py-2">
+              Vino još nije ocenjeno. Pomerite bar jedan klizač da biste upisali ocenu.
+            </p>
+          ) : null}
 
           {/* Detaljna analiza */}
           <Button
@@ -427,7 +439,7 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
           Otkaži
         </Button>
         <Button type="submit" className="flex-1 bg-purple-900 hover:bg-purple-800">
-          {isEdit ? "Potvrdi Ocenu" : "Dodaj Vino"}
+          {!isEdit ? "Dodaj Vino" : rated ? "Potvrdi Ocenu" : "Sačuvaj"}
         </Button>
       </div>
     </form>
