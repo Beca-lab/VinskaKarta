@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { Copy, Download, FileUp, Upload } from "lucide-react";
 import type { Wine } from "../wine";
-import { parseWineData, serializeBackup } from "../storage";
+import { mergeWines, parseWineData, serializeBackup } from "../storage";
 
 interface BackupModalProps {
   open: boolean;
@@ -95,6 +95,21 @@ export function BackupModal({ open, onClose, wines, onImport }: BackupModalProps
     setImportText("");
   };
 
+  const confirmMerge = () => {
+    if (!pending) return;
+    const result = mergeWines(wines, pending);
+    onImport(result.wines);
+    setStatus({
+      kind: "ok",
+      text:
+        result.skipped > 0
+          ? `Dodato ${result.added} vina. Preskočeno ${result.skipped} koja već postoje na listi.`
+          : `Dodato ${result.added} vina.`,
+    });
+    setPending(null);
+    setImportText("");
+  };
+
   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
@@ -168,9 +183,13 @@ export function BackupModal({ open, onClose, wines, onImport }: BackupModalProps
           {pending ? (
             <section className="space-y-2 rounded-md border-2 border-amber-900/30 bg-white/70 p-3">
               <p className="text-sm text-amber-950">
-                U rezervnoj kopiji je pronađeno <strong>{pending.length}</strong> vina. Uvoz će zameniti trenutnu
-                listu ({wines.length} vina).
+                U rezervnoj kopiji je pronađeno <strong>{pending.length}</strong> vina. Na listi trenutno imate{" "}
+                {wines.length}.
               </p>
+              <Button type="button" onClick={confirmMerge} className="w-full h-11 bg-purple-900 hover:bg-purple-800">
+                Dodaj na postojeća
+              </Button>
+              <p className="text-xs text-slate-600">Vina koja već postoje (isto ime, godina i vinarija) se preskaču.</p>
               <div className="grid grid-cols-2 gap-2">
                 <Button type="button" variant="outline" onClick={() => setPending(null)} className="h-11">
                   Otkaži
@@ -179,6 +198,7 @@ export function BackupModal({ open, onClose, wines, onImport }: BackupModalProps
                   Zameni sve
                 </Button>
               </div>
+              <p className="text-xs text-slate-600">„Zameni sve“ briše trenutnu listu i stavlja vina iz kopije.</p>
             </section>
           ) : null}
 

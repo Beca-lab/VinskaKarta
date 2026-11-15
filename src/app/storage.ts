@@ -93,6 +93,30 @@ export const parseWineData = (text: string): Wine[] => {
   return migrateWines(wines, version);
 };
 
+const duplicateKey = (wine: Wine): string =>
+  [wine.name, wine.vintage ?? "", wine.winery ?? ""].map((part) => part.trim().toLowerCase()).join("|");
+
+/**
+ * Dodaje uvezena vina na postojeću listu. Vina koja već postoje (isto ime, godina i vinarija)
+ * se preskaču, a ostala dobijaju nove redne brojeve.
+ */
+export const mergeWines = (existing: Wine[], imported: Wine[]): { wines: Wine[]; added: number; skipped: number } => {
+  const known = new Set(existing.map(duplicateKey));
+  let nextId = existing.reduce((max, wine) => Math.max(max, wine.id), 0) + 1;
+  const wines = existing.slice();
+  let skipped = 0;
+  for (const wine of imported) {
+    const key = duplicateKey(wine);
+    if (known.has(key)) {
+      skipped++;
+      continue;
+    }
+    known.add(key);
+    wines.push({ ...wine, id: nextId++ });
+  }
+  return { wines, added: imported.length - skipped, skipped };
+};
+
 export const serializeBackup = (wines: Wine[]): string =>
   JSON.stringify(
     { app: "vinska-karta", version: DATA_VERSION, exportedAt: new Date().toISOString(), wines },
