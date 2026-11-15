@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useRef, useState, type FormEvent } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -35,6 +35,17 @@ import {
   type NewWine,
   type Wine,
 } from "../wine";
+
+type FormErrors = Partial<Record<"name" | "blend" | "vintage", string>>;
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return (
+    <p data-error className="text-xs text-red-700">
+      {message}
+    </p>
+  );
+}
 
 interface WineFormProps {
   /** "add" = novo vino, "edit" = izmena i ocenjivanje postojećeg */
@@ -95,9 +106,22 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
     setSelectedAromas((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
+  const formRef = useRef<HTMLFormElement>(null);
+  const [errors, setErrors] = useState<FormErrors>({});
+
   const validate = (): boolean => {
+    const found: FormErrors = {};
+    if (!name.trim()) found.name = "Unesite ime vina.";
+    setErrors(found);
+    if (Object.keys(found).length > 0) {
+      // Prikaži prvu grešku (forma je duga, pa greška može biti van ekrana)
+      requestAnimationFrame(() => {
+        formRef.current?.querySelector("[data-error]")?.scrollIntoView({ block: "center" });
+      });
+      return false;
+    }
+
     if (!isEdit) {
-      if (!name.trim()) return false;
       const hasBlendEntries = blend.some((b) => b.grape.trim() !== "" || b.percent.trim() !== "");
       if (composition === "Kupaza" && hasBlendEntries) {
         const filled = blend.filter((b) => b.grape.trim() !== "");
@@ -134,7 +158,12 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className={isEdit ? "space-y-6 py-4" : "space-y-4 py-4"}>
+    <form
+      ref={formRef}
+      onSubmit={handleSubmit}
+      noValidate
+      className={isEdit ? "space-y-6 py-4" : "space-y-4 py-4"}
+    >
       {/* ---------- Podaci o vinu ---------- */}
       <div className={isEdit ? "space-y-4 pb-4 border-b border-amber-900/20" : "space-y-4"}>
         {isEdit ? <h3 className="font-semibold text-amber-950">Informacije o Vinu</h3> : null}
@@ -147,8 +176,9 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="bg-white/80"
-            required={!isEdit}
+            aria-invalid={Boolean(errors.name)}
           />
+          <FieldError message={errors.name} />
         </div>
 
         <div className="space-y-2">
