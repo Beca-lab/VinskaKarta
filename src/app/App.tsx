@@ -150,7 +150,7 @@ export default function App() {
               <div className="mb-6 sm:mb-8 text-center">
                 <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2">
                   <WineIcon className="w-6 h-6 sm:w-8 sm:h-8 text-purple-900" />
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl text-amber-950 tracking-wide">Ocenjivanje Vina</h1>
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl text-amber-950 tracking-wide">Wine Card</h1>
                   <Award className="w-6 h-6 sm:w-8 sm:h-8 text-amber-600" />
                 </div>
                 <p className="text-sm sm:text-base text-slate-600">Profesionalna degustacija i evaluacija</p>

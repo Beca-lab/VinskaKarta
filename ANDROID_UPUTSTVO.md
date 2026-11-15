@@ -165,8 +165,8 @@ Editujte: `android/app/src/main/res/values/strings.xml`
 
 ```xml
 <resources>
-    <string name="app_name">Ocenjivanje Vina</string>
-    <string name="title_activity_main">Ocenjivanje Vina</string>
+    <string name="app_name">Wine Card</string>
+    <string name="title_activity_main">Wine Card</string>
 </resources>
 ```
 

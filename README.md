@@ -1,4 +1,4 @@
-# 🍷 Aplikacija za Ocenjivanje Vina
+# 🍷 Wine Card – aplikacija za ocenjivanje vina
 
 Mobilna Android aplikacija za profesionalnu degustaciju i ocenjivanje vina, sa elegantnim dizajnom inspirisanim drvenim tablama i vinovom lozom.
 

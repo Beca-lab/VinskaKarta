@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.wineapp.ocenjivanje',
-  appName: 'Ocenjivanje Vina',
+  appName: 'Wine Card',
   webDir: 'dist',
   bundledWebRuntime: false,
   server: {
