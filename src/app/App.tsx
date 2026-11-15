@@ -3,6 +3,7 @@ import { WineCard } from "./components/WineCard";
 import { WineModal } from "./components/WineModal";
 import { BackupModal } from "./components/BackupModal";
 import { VineCorner } from "./components/VineCorner";
+import { ConfirmDialog } from "./components/ConfirmDialog";
 import { Wine as WineIcon, Award, Plus, ListFilter, DatabaseBackup } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
@@ -17,6 +18,8 @@ export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
+  const [wineToDelete, setWineToDelete] = useState<Wine | null>(null);
+  const [lastDeleted, setLastDeleted] = useState<{ wine: Wine; index: number } | null>(null);
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [regionFilter, setRegionFilter] = useState<string>("all");
   const [aromaFilter, setAromaFilter] = useState<AromaId | "all">("all");
@@ -54,8 +57,30 @@ export default function App() {
   };
 
   const handleDeleteWine = (wineId: number) => {
-    setWines((prev) => prev.filter(wine => wine.id !== wineId));
+    const index = wines.findIndex((wine) => wine.id === wineId);
+    if (index === -1) return;
+    setLastDeleted({ wine: wines[index], index });
+    setWines((prev) => prev.filter((wine) => wine.id !== wineId));
   };
+
+  const handleUndoDelete = () => {
+    if (!lastDeleted) return;
+    const { wine, index } = lastDeleted;
+    setWines((prev) => {
+      if (prev.some((w) => w.id === wine.id)) return prev;
+      const next = prev.slice();
+      next.splice(Math.min(index, next.length), 0, wine);
+      return next;
+    });
+    setLastDeleted(null);
+  };
+
+  // Poruka "Poništi" posle brisanja nestaje sama posle nekoliko sekundi
+  useEffect(() => {
+    if (!lastDeleted) return;
+    const timer = setTimeout(() => setLastDeleted(null), 8000);
+    return () => clearTimeout(timer);
+  }, [lastDeleted]);
 
   const handleImportWines = (imported: Wine[]) => {
     // Ocena se računa ponovo iz sačuvanih poena, da bude usklađena sa trenutnom formulom
@@ -256,7 +281,7 @@ export default function App() {
                       key={wine.id}
                       wine={wine}
                       onRate={() => handleRateWine(wine)}
-                      onDelete={() => handleDeleteWine(wine.id)}
+                      onDelete={() => setWineToDelete(wine)}
                     />
                   ))
                 ) : (
@@ -295,6 +320,38 @@ export default function App() {
         onClose={() => setIsAddModalOpen(false)}
         onSubmit={handleAddWine}
       />
+
+      {/* Potvrda brisanja */}
+      <ConfirmDialog
+        open={wineToDelete !== null}
+        title="Obrisati vino?"
+        description={wineToDelete ? `„${wineToDelete.name}“ će biti uklonjeno sa liste.` : undefined}
+        confirmLabel="Obriši"
+        destructive
+        onCancel={() => setWineToDelete(null)}
+        onConfirm={() => {
+          if (wineToDelete) handleDeleteWine(wineToDelete.id);
+          setWineToDelete(null);
+        }}
+      />
+
+      {/* Poništavanje brisanja */}
+      {lastDeleted ? (
+        <div
+          role="status"
+          className="fixed bottom-4 left-1/2 z-40 flex w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 items-center justify-between gap-3 rounded-lg bg-stone-900 px-4 py-2 text-sm text-amber-50 shadow-xl"
+        >
+          <span className="min-w-0 truncate">Obrisano: {lastDeleted.wine.name}</span>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={handleUndoDelete}
+            className="h-9 shrink-0 px-3 font-semibold text-amber-300 hover:bg-white/10 hover:text-amber-200"
+          >
+            Poništi
+          </Button>
+        </div>
+      ) : null}
 
       {/* Backup Modal */}
       <BackupModal

@@ -31,6 +31,7 @@ function AromaTags({ aromas }: { aromas: string[] }) {
 interface WineCardProps {
   wine: Wine;
   onRate: () => void;
+  /** Traži brisanje; potvrdu prikazuje roditelj */
   onDelete: () => void;
 }
 
@@ -39,9 +40,7 @@ export function WineCard({ wine, onRate, onDelete }: WineCardProps) {
 
   const handleDelete = (e: MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm(`Da li ste sigurni da želite da obrišete "${name}"?`)) {
-      onDelete();
-    }
+    onDelete();
   };
 
   const compositionLabel = composition === "Cisto" ? "Čisto" : composition === "Kupaza" ? "Kupaža" : undefined;

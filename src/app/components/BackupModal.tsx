@@ -43,11 +43,14 @@ const copyToClipboard = async (text: string) => {
 export function BackupModal({ open, onClose, wines, onImport }: BackupModalProps) {
   const [importText, setImportText] = useState("");
   const [status, setStatus] = useState<Status>(null);
+  /** Pročitana vina koja čekaju potvrdu uvoza */
+  const [pending, setPending] = useState<Wine[] | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleClose = () => {
     setImportText("");
     setStatus(null);
+    setPending(null);
     onClose();
   };
 
@@ -76,17 +79,20 @@ export function BackupModal({ open, onClose, wines, onImport }: BackupModalProps
 
   const doImport = (text: string) => {
     try {
-      const parsed = parseWineData(text);
-      const ok = window.confirm(
-        `Uvesti ${parsed.length} vina? Ovo će ZAMENITI trenutnu listu (${wines.length} vina).`
-      );
-      if (!ok) return;
-      onImport(parsed);
-      setImportText("");
-      setStatus({ kind: "ok", text: `Uvezeno ${parsed.length} vina.` });
+      setPending(parseWineData(text));
+      setStatus(null);
     } catch (e) {
+      setPending(null);
       setStatus({ kind: "error", text: e instanceof Error ? e.message : "Uvoz nije uspeo." });
     }
+  };
+
+  const confirmReplace = () => {
+    if (!pending) return;
+    onImport(pending);
+    setStatus({ kind: "ok", text: `Uvezeno ${pending.length} vina.` });
+    setPending(null);
+    setImportText("");
   };
 
   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
@@ -158,6 +164,23 @@ export function BackupModal({ open, onClose, wines, onImport }: BackupModalProps
               Uvezi nalepljeni tekst
             </Button>
           </section>
+
+          {pending ? (
+            <section className="space-y-2 rounded-md border-2 border-amber-900/30 bg-white/70 p-3">
+              <p className="text-sm text-amber-950">
+                U rezervnoj kopiji je pronađeno <strong>{pending.length}</strong> vina. Uvoz će zameniti trenutnu
+                listu ({wines.length} vina).
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <Button type="button" variant="outline" onClick={() => setPending(null)} className="h-11">
+                  Otkaži
+                </Button>
+                <Button type="button" onClick={confirmReplace} className="h-11 bg-red-700 hover:bg-red-600 text-white">
+                  Zameni sve
+                </Button>
+              </div>
+            </section>
+          ) : null}
 
           {status ? (
             <p className={`text-sm ${status.kind === "ok" ? "text-green-800" : "text-red-700"}`}>{status.text}</p>
