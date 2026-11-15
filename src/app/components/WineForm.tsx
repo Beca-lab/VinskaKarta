@@ -176,10 +176,10 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
     >
       {/* ---------- Podaci o vinu ---------- */}
       <div className={isEdit ? "space-y-4 pb-4 border-b border-amber-900/20" : "space-y-4"}>
-        {isEdit ? <h3 className="font-semibold text-amber-950">Informacije o Vinu</h3> : null}
+        {isEdit ? <h3 className="font-semibold text-amber-950">Informacije o vinu</h3> : null}
 
         <div className="space-y-2">
-          <Label htmlFor={`${idPrefix}name`}>Ime Vina</Label>
+          <Label htmlFor={`${idPrefix}name`}>Ime vina</Label>
           <Input
             id={`${idPrefix}name`}
             placeholder={isEdit ? undefined : "npr. Cabernet Sauvignon Barrique"}
@@ -453,14 +453,14 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
             }}
             className="w-full"
           >
-            {showDetailed ? "▼ Sakrij Detaljnu Analizu" : "▶ Prikaži Detaljnu Analizu"}
+            {showDetailed ? "▼ Sakrij detaljnu analizu" : "▶ Prikaži detaljnu analizu"}
             {!showDetailed && detailedEnabled ? " (uneta)" : ""}
           </Button>
 
           {showDetailed && (
             <div className="space-y-4 pt-2 border-t border-amber-900/20">
               <div className="flex items-center justify-between gap-2">
-                <h4 className="font-medium text-amber-950">Detaljna Analiza</h4>
+                <h4 className="font-medium text-amber-950">Detaljna analiza</h4>
                 <Button
                   type="button"
                   variant="ghost"
@@ -480,7 +480,7 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor={`${idPrefix}notes`}>Beleške Degustacije</Label>
+            <Label htmlFor={`${idPrefix}notes`}>Beleške degustacije</Label>
             <Textarea
               id={`${idPrefix}notes`}
               placeholder="Dodajte vaše beleške ovde..."
@@ -497,7 +497,7 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
           Otkaži
         </Button>
         <Button type="submit" className="flex-1 bg-purple-900 hover:bg-purple-800">
-          {!isEdit ? "Dodaj Vino" : rated ? "Potvrdi Ocenu" : "Sačuvaj"}
+          {!isEdit ? "Dodaj vino" : rated ? "Potvrdi ocenu" : "Sačuvaj"}
         </Button>
       </div>
     </form>

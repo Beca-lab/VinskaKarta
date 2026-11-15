@@ -160,11 +160,11 @@ export default function App() {
               <div className="mb-4 sm:mb-6 bg-amber-50/50 border border-amber-900/20 rounded-lg p-3 sm:p-4 shadow-sm">
                 <div className="flex items-center gap-2 mb-3">
                   <ListFilter className="w-4 h-4 text-amber-900" />
-                  <h2 className="text-sm sm:text-base font-semibold text-amber-950">Filteri i Sortiranje</h2>
+                  <h2 className="text-sm sm:text-base font-semibold text-amber-950">Filteri i sortiranje</h2>
                 </div>
                 <div className="grid grid-cols-1 gap-3">
                   <div>
-                    <label className="text-xs sm:text-sm text-slate-600 mb-1 block">Tip Vina</label>
+                    <label className="text-xs sm:text-sm text-slate-600 mb-1 block">Tip vina</label>
                     <Select value={typeFilter} onValueChange={setTypeFilter}>
                       <SelectTrigger className="bg-white/80 h-10 sm:h-11">
                         <SelectValue />
@@ -172,7 +172,7 @@ export default function App() {
                       <SelectContent>
                         {wineTypes.map(type => (
                           <SelectItem key={type} value={type}>
-                            {type === "all" ? "Svi Tipovi" : type}
+                            {type === "all" ? "Svi tipovi" : type}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -188,7 +188,7 @@ export default function App() {
                       <SelectContent>
                         {wineRegions.map(region => (
                           <SelectItem key={region} value={region}>
-                            {region === "all" ? "Svi Regioni" : region}
+                            {region === "all" ? "Svi regioni" : region}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -204,7 +204,7 @@ export default function App() {
                       <SelectContent>
                         {wineAromas.map(aroma => (
                           <SelectItem key={aroma} value={aroma}>
-                            {aroma === "all" ? "Sve Arome" : (aromaLabels[aroma] || aroma)}
+                            {aroma === "all" ? "Sve arome" : (aromaLabels[aroma] || aroma)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -212,15 +212,15 @@ export default function App() {
                   </div>
                   
                   <div>
-                    <label className="text-xs sm:text-sm text-slate-600 mb-1 block">Sortiraj Po</label>
+                    <label className="text-xs sm:text-sm text-slate-600 mb-1 block">Sortiraj po</label>
                     <Select value={sortOrder} onValueChange={setSortOrder}>
                       <SelectTrigger className="bg-white/80 h-10 sm:h-11">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="newest">Najnovije Prvo</SelectItem>
-                        <SelectItem value="best">Od Najboljih ka Najgorim</SelectItem>
-                        <SelectItem value="worst">Od Najgorih ka Najboljim</SelectItem>
+                        <SelectItem value="newest">Najnovije prvo</SelectItem>
+                        <SelectItem value="best">Od najboljih ka najgorim</SelectItem>
+                        <SelectItem value="worst">Od najgorih ka najboljim</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -234,7 +234,7 @@ export default function App() {
                   className="bg-purple-900 hover:bg-purple-800 shadow-md w-full sm:w-auto h-11 sm:h-10"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Dodaj Novo Vino
+                  Dodaj novo vino
                 </Button>
                 <Button
                   variant="outline"
@@ -242,7 +242,7 @@ export default function App() {
                   className="bg-white/70 border-amber-900/30 text-amber-950 shadow-sm w-full sm:w-auto h-11 sm:h-10"
                 >
                   <DatabaseBackup className="w-4 h-4 mr-2" />
-                  Rezervna Kopija
+                  Rezervna kopija
                 </Button>
               </div>
 
@@ -268,7 +268,7 @@ export default function App() {
                 ) : (
                   <div className="text-center py-8 text-slate-500 text-sm sm:text-base">
                     {wines.length === 0
-                      ? "Još nema vina. Dodirnite „Dodaj Novo Vino“ da unesete prvo."
+                      ? "Još nema vina. Dodirnite „Dodaj novo vino“ da unesete prvo."
                       : "Nema vina koja odgovaraju vašim filterima"}
                   </div>
                 )}

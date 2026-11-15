@@ -60,12 +60,12 @@ export interface Wine {
 export type NewWine = Omit<Wine, "id" | "rating">;
 
 export const WINE_TYPES = [
-  "Crveno Vino",
-  "Belo Vino",
-  "Roze Vino",
+  "Crveno vino",
+  "Belo vino",
+  "Roze vino",
   "Šampanjac",
-  "Penušavo Vino",
-  "Desertno Vino",
+  "Penušavo vino",
+  "Desertno vino",
 ] as const;
 
 export const SCORE_CATEGORIES: Array<{ key: keyof GradingScores; label: string; description: string }> = [

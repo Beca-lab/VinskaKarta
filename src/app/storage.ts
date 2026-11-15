@@ -10,9 +10,17 @@ export const STORAGE_KEY = "wine-app-data";
 export const VERSION_KEY = "wine-app-data-version";
 const CORRUPT_KEY = "wine-app-data-corrupt";
 
-export const DATA_VERSION = 3;
+export const DATA_VERSION = 4;
 
 type Migration = (wine: Wine) => Wine;
+
+const TYPE_RENAMES_V4: Record<string, string> = {
+  "Crveno Vino": "Crveno vino",
+  "Belo Vino": "Belo vino",
+  "Roze Vino": "Roze vino",
+  "Penušavo Vino": "Penušavo vino",
+  "Desertno Vino": "Desertno vino",
+};
 
 /** MIGRATIONS[n] prevodi jedno vino iz verzije n u verziju n+1. */
 const MIGRATIONS: Record<number, Migration> = {
@@ -20,6 +28,8 @@ const MIGRATIONS: Record<number, Migration> = {
   1: (wine) => wine,
   // 2 -> 3: ekavski naziv tipa
   2: (wine) => (wine.type === "Pjenušavo Vino" ? { ...wine, type: "Penušavo Vino" } : wine),
+  // 3 -> 4: nazivi tipova malim slovom ("Crveno Vino" -> "Crveno vino")
+  3: (wine) => (wine.type && TYPE_RENAMES_V4[wine.type] ? { ...wine, type: TYPE_RENAMES_V4[wine.type] } : wine),
 };
 
 export const migrateWines = (wines: Wine[], fromVersion: number): Wine[] => {

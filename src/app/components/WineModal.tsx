@@ -27,7 +27,7 @@ export function WineModal({ mode, wine, open, onClose, onSubmit }: WineModalProp
         <DialogHeader>
           <div className="flex items-center gap-2">
             <WineIcon className="w-5 h-5 text-purple-900" />
-            <DialogTitle>{isEdit ? "Oceni Vino" : "Dodaj Novo Vino"}</DialogTitle>
+            <DialogTitle>{isEdit ? "Oceni vino" : "Dodaj novo vino"}</DialogTitle>
           </div>
         </DialogHeader>
         <WineForm
