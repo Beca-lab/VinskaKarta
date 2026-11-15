@@ -7,7 +7,7 @@ import { Button } from "./ui/button";
 import { AROMA_CATEGORIES, buildAromaLabelIndex } from "../../data/aromas";
 import { formatDate, formatDecimal, formatNumber, type Wine } from "../wine";
 
-const MAX_AROMAS_ON_CARD = 3;
+const MAX_AROMAS_ON_CARD = 6;
 
 function AromaTags({ aromas }: { aromas: string[] }) {
   const labelIndex = useMemo(() => buildAromaLabelIndex(AROMA_CATEGORIES), []);
