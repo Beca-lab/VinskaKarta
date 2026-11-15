@@ -112,6 +112,17 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
   const validate = (): boolean => {
     const found: FormErrors = {};
     if (!name.trim()) found.name = "Unesite ime vina.";
+
+    const hasBlendEntries = blend.some((b) => b.grape.trim() !== "" || b.percent.trim() !== "");
+    if (composition === "Kupaza" && hasBlendEntries) {
+      const filled = blend.filter((b) => b.grape.trim() !== "");
+      if (filled.length < 2) {
+        found.blend = "Kupaža mora imati bar dve sorte (upišite naziv svake).";
+      } else if (getBlendTotal(filled) > 100) {
+        found.blend = "Zbir procenata ne sme biti veći od 100%.";
+      }
+    }
+
     setErrors(found);
     if (Object.keys(found).length > 0) {
       // Prikaži prvu grešku (forma je duga, pa greška može biti van ekrana)
@@ -119,15 +130,6 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
         formRef.current?.querySelector("[data-error]")?.scrollIntoView({ block: "center" });
       });
       return false;
-    }
-
-    if (!isEdit) {
-      const hasBlendEntries = blend.some((b) => b.grape.trim() !== "" || b.percent.trim() !== "");
-      if (composition === "Kupaza" && hasBlendEntries) {
-        const filled = blend.filter((b) => b.grape.trim() !== "");
-        if (filled.length < 2) return false;
-        if (getBlendTotal(filled) > 100) return false;
-      }
     }
     return true;
   };
@@ -295,6 +297,7 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
             <div className="text-xs text-slate-600">
               Ukupno: {Math.round(getBlendTotal(blend) * 10) / 10}% (maks 100%)
             </div>
+            <FieldError message={errors.blend} />
           </div>
         ) : null}
 
