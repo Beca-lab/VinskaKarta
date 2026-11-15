@@ -2,8 +2,10 @@ import { useRef, useState, type ChangeEvent } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
-import { Copy, Download, FileUp, Upload } from "lucide-react";
-import type { Wine } from "../wine";
+import { Copy, Download, FileSpreadsheet, FileUp, Upload } from "lucide-react";
+import { AROMA_CATEGORIES, buildAromaLabelIndex } from "../../data/aromas";
+import { winesToCsv } from "../csv";
+import { todayISO, type Wine } from "../wine";
 import { mergeWines, parseWineData, serializeBackup } from "../storage";
 
 interface BackupModalProps {
@@ -63,18 +65,24 @@ export function BackupModal({ open, onClose, wines, onImport }: BackupModalProps
     );
   };
 
-  const handleDownload = () => {
-    const blob = new Blob([serializeBackup(wines)], { type: "application/json" });
+  const downloadFile = (extension: string, content: string, mimeType: string) => {
+    const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    const date = new Date().toISOString().slice(0, 10);
     a.href = url;
-    a.download = `vinska-karta-${date}.json`;
+    a.download = `wine-card-${todayISO()}.${extension}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     setStatus({ kind: "ok", text: "Fajl je poslat na preuzimanje. Ako se ništa ne desi (npr. na telefonu), koristite \"Kopiraj\"." });
+  };
+
+  const handleDownload = () => downloadFile("json", serializeBackup(wines), "application/json");
+
+  const handleDownloadCsv = () => {
+    const aromaLabels = buildAromaLabelIndex(AROMA_CATEGORIES);
+    downloadFile("csv", winesToCsv(wines, aromaLabels), "text/csv;charset=utf-8");
   };
 
   const doImport = (text: string) => {
@@ -143,6 +151,13 @@ export function BackupModal({ open, onClose, wines, onImport }: BackupModalProps
                 Preuzmi fajl
               </Button>
             </div>
+            <Button type="button" variant="outline" onClick={handleDownloadCsv} className="w-full h-11">
+              <FileSpreadsheet className="w-4 h-4 mr-2" />
+              Preuzmi tabelu za Excel (CSV)
+            </Button>
+            <p className="text-xs text-slate-600">
+              Tabela služi za pregled u Excelu. Za vraćanje vina u aplikaciju koristite „Kopiraj“ ili „Preuzmi fajl“.
+            </p>
           </section>
 
           <section className="space-y-2">
