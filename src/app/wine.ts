@@ -59,6 +59,22 @@ export interface Wine {
 
 export type NewWine = Omit<Wine, "id" | "rating">;
 
+export const WINE_TYPES = [
+  "Crveno Vino",
+  "Belo Vino",
+  "Roze Vino",
+  "Šampanjac",
+  "Pjenušavo Vino",
+  "Desertno Vino",
+] as const;
+
+export const SCORE_CATEGORIES: Array<{ key: keyof GradingScores; label: string; description: string }> = [
+  { key: "appearance", label: "Izgled", description: "Bistrina, boja i viskoznost" },
+  { key: "taste", label: "Ukus", description: "Aroma, balans i kompleksnost" },
+  { key: "finish", label: "Završetak", description: "Posleukus i trajanje" },
+  { key: "overall", label: "Ukupno", description: "Opšti utisak" },
+];
+
 export const DEFAULT_SCORES: GradingScores = {
   appearance: 50,
   taste: 50,

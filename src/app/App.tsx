@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { WineCard } from "./components/WineCard";
-import { GradingModal } from "./components/GradingModal";
-import { AddWineModal } from "./components/AddWineModal";
+import { WineModal } from "./components/WineModal";
 import { BackupModal } from "./components/BackupModal";
 import { VineCorner } from "./components/VineCorner";
 import { Wine as WineIcon, Award, Plus, ListFilter, DatabaseBackup } from "lucide-react";
@@ -9,7 +8,7 @@ import { Button } from "./components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
 import { AROMA_CATEGORIES, buildAromaLabelIndex, type AromaId } from "../data/aromas";
 import { loadWines, saveWines } from "./storage";
-import { computeRating, type DetailedEvaluation, type GradingScores, type NewWine, type Wine } from "./wine";
+import { computeRating, type NewWine, type Wine } from "./wine";
 
 // Primeri vina za prvo pokretanje (dok još ništa nije sačuvano)
 const getDefaultWines = (): Wine[] => {
@@ -83,14 +82,9 @@ export default function App() {
     setIsModalOpen(true);
   };
 
-  const handleSubmitGrade = (wineId: number, scores: GradingScores, notes: string, updatedWineInfo: Partial<Wine>, detailedEval?: DetailedEvaluation) => {
-    const totalScore = computeRating(scores);
-
-    setWines((prev) => prev.map((wine) => 
-      wine.id === wineId 
-        ? { ...wine, ...updatedWineInfo, scores, rating: totalScore, notes, detailedEval } 
-        : wine
-    ));
+  const handleUpdateWine = (wineId: number, values: NewWine) => {
+    const rating = values.scores ? computeRating(values.scores) : undefined;
+    setWines((prev) => prev.map((wine) => (wine.id === wineId ? { ...wine, ...values, rating } : wine)));
   };
 
   const handleAddWine = (newWine: NewWine) => {
@@ -335,16 +329,18 @@ export default function App() {
         </div>
       </div>
 
-      {/* Grading Modal */}
-      <GradingModal
+      {/* Izmena / ocenjivanje vina */}
+      <WineModal
+        mode="edit"
         wine={selectedWine}
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={handleSubmitGrade}
+        onSubmit={(values) => selectedWine && handleUpdateWine(selectedWine.id, values)}
       />
 
-      {/* Add Wine Modal */}
-      <AddWineModal
+      {/* Dodavanje vina */}
+      <WineModal
+        mode="add"
         open={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSubmit={handleAddWine}

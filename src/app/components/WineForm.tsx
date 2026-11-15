@@ -1,0 +1,414 @@
+import { useMemo, useState, type FormEvent } from "react";
+import { Plus, Trash2 } from "lucide-react";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Slider } from "./ui/slider";
+import { Switch } from "./ui/switch";
+import { Textarea } from "./ui/textarea";
+import {
+  AROMA_CATEGORIES,
+  buildAromaLabelIndex,
+  DEFAULT_AROMA_CATEGORY_ID,
+  type AromaId,
+} from "../../data/aromas";
+import { AromaCategorySelector } from "./aroma/AromaCategorySelector";
+import { AromaChipGrid } from "./aroma/AromaChipGrid";
+import { AromaSelector } from "./aroma/AromaSelector";
+import { SelectedAromaTags } from "./aroma/SelectedAromaTags";
+import { DetailedEvalFields } from "./DetailedEvalFields";
+import {
+  blendInputsToComponents,
+  createDefaultDetailedEval,
+  createEmptyBlend,
+  DEFAULT_SCORES,
+  getBlendTotal,
+  normalizeBlendAfterPercentChange,
+  SCORE_CATEGORIES,
+  WINE_TYPES,
+  type BlendComponentInput,
+  type Composition,
+  type DetailedEvaluation,
+  type GradingScores,
+  type NewWine,
+  type Wine,
+} from "../wine";
+
+interface WineFormProps {
+  /** "add" = novo vino, "edit" = izmena i ocenjivanje postojećeg */
+  mode: "add" | "edit";
+  /** Vino koje se menja (samo u režimu "edit") */
+  initial?: Wine | null;
+  onSubmit: (values: NewWine) => void;
+  onCancel: () => void;
+}
+
+/**
+ * Zajednička forma za dodavanje i za izmenu/ocenjivanje vina.
+ * Forma se pravi iznova svaki put kad se prozor otvori, pa početno stanje čita iz `initial`.
+ */
+export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
+  const isEdit = mode === "edit";
+  const idPrefix = isEdit ? "edit-" : "";
+
+  // ---- Podaci o vinu ----
+  const [name, setName] = useState(initial?.name ?? "");
+  const [type, setType] = useState(initial?.type ?? "");
+  const [vintage, setVintage] = useState(initial?.vintage ?? "");
+  const [region, setRegion] = useState(initial?.region ?? "");
+
+  const [composition, setComposition] = useState<"" | Composition>(initial?.composition ?? "");
+  const [variety, setVariety] = useState(initial?.variety ?? "");
+  const [blend, setBlend] = useState<BlendComponentInput[]>(() =>
+    initial?.blend && initial.blend.length > 0
+      ? initial.blend.map((b) => ({ grape: b.grape ?? "", percent: String(b.percent ?? "") }))
+      : createEmptyBlend()
+  );
+
+  // ---- Ocenjivanje ----
+  const [includeGrading, setIncludeGrading] = useState(isEdit);
+  const [scores, setScores] = useState<GradingScores>(initial?.scores ?? DEFAULT_SCORES);
+  const [notes, setNotes] = useState(initial?.notes ?? "");
+
+  const [showAromas, setShowAromas] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>(DEFAULT_AROMA_CATEGORY_ID);
+  const [selectedAromas, setSelectedAromas] = useState<AromaId[]>(initial?.aromas ?? []);
+  const aromaLabels = useMemo(() => buildAromaLabelIndex(AROMA_CATEGORIES), []);
+  const selectedCategoryData = useMemo(
+    () => AROMA_CATEGORIES.find((c) => c.id === selectedCategory),
+    [selectedCategory]
+  );
+
+  const [showDetailed, setShowDetailed] = useState(false);
+  const [detailedEval, setDetailedEval] = useState<DetailedEvaluation>(
+    () => initial?.detailedEval ?? createDefaultDetailedEval()
+  );
+
+  const toggleAroma = (id: AromaId) => {
+    setSelectedAromas((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
+
+  const validate = (): boolean => {
+    if (!isEdit) {
+      if (!name.trim()) return false;
+      const hasBlendEntries = blend.some((b) => b.grape.trim() !== "" || b.percent.trim() !== "");
+      if (composition === "Kupaza" && hasBlendEntries) {
+        const filled = blend.filter((b) => b.grape.trim() !== "");
+        if (filled.length < 2) return false;
+        if (getBlendTotal(filled) > 100) return false;
+      }
+    }
+    return true;
+  };
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    const compositionValue = composition === "" ? undefined : composition;
+    const blendComponents = compositionValue === "Kupaza" ? blendInputsToComponents(blend) : [];
+
+    // Sva polja se navode izričito (i kad su prazna), da izmena može i da obriše staru vrednost
+    const values: NewWine = {
+      name: name.trim(),
+      type: type.trim() || undefined,
+      vintage: vintage.trim() || undefined,
+      region: region.trim() || undefined,
+      composition: compositionValue,
+      variety: compositionValue === "Cisto" && variety.trim() ? variety.trim() : undefined,
+      blend: blendComponents.length > 0 ? blendComponents : undefined,
+      scores: includeGrading ? scores : undefined,
+      aromas: includeGrading ? selectedAromas : undefined,
+      notes: includeGrading ? notes : undefined,
+      detailedEval: includeGrading && showDetailed ? detailedEval : undefined,
+    };
+
+    onSubmit(values);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className={isEdit ? "space-y-6 py-4" : "space-y-4 py-4"}>
+      {/* ---------- Podaci o vinu ---------- */}
+      <div className={isEdit ? "space-y-4 pb-4 border-b border-amber-900/20" : "space-y-4"}>
+        {isEdit ? <h3 className="font-semibold text-amber-950">Informacije o Vinu</h3> : null}
+
+        <div className="space-y-2">
+          <Label htmlFor={`${idPrefix}name`}>Ime Vina</Label>
+          <Input
+            id={`${idPrefix}name`}
+            placeholder={isEdit ? undefined : "npr. Château Margaux"}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="bg-white/80"
+            required={!isEdit}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor={`${idPrefix}type`}>Tip</Label>
+          <Select value={type} onValueChange={(value: string) => setType(value)}>
+            <SelectTrigger id={`${idPrefix}type`} className="bg-white/80">
+              <SelectValue placeholder={isEdit ? undefined : "Izaberite tip vina"} />
+            </SelectTrigger>
+            <SelectContent>
+              {WINE_TYPES.map((t) => (
+                <SelectItem key={t} value={t}>
+                  {t}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Sastav</Label>
+          <RadioGroup
+            value={composition}
+            onValueChange={(value: string) => setComposition(value as "" | Composition)}
+            className={isEdit ? "grid grid-cols-1 gap-2" : "grid grid-cols-2 gap-3"}
+          >
+            {isEdit ? (
+              <Label className="flex items-center gap-2 rounded-md border border-amber-900/20 bg-white/70 px-3 py-2">
+                <RadioGroupItem value="" />
+                Nije odabrano
+              </Label>
+            ) : null}
+            <Label className="flex items-center gap-2 rounded-md border border-amber-900/20 bg-white/70 px-3 py-2">
+              <RadioGroupItem value="Cisto" />
+              Čisto
+            </Label>
+            <Label className="flex items-center gap-2 rounded-md border border-amber-900/20 bg-white/70 px-3 py-2">
+              <RadioGroupItem value="Kupaza" />
+              Kupaža
+            </Label>
+          </RadioGroup>
+        </div>
+
+        {composition === "Cisto" ? (
+          <div className="space-y-2">
+            <Label htmlFor={`${idPrefix}variety`}>Vrsta vina</Label>
+            <Input
+              id={`${idPrefix}variety`}
+              placeholder="npr. Cabernet Sauvignon"
+              value={variety}
+              onChange={(e) => setVariety(e.target.value)}
+              className="bg-white/80"
+            />
+          </div>
+        ) : composition === "Kupaza" ? (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <Label>Kupaža (grožđe i procenat)</Label>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setBlend([...blend, { grape: "", percent: "" }])}
+                className="h-9"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Dodaj
+              </Button>
+            </div>
+
+            <div className="space-y-2">
+              {blend.map((item, index) => (
+                <div key={index} className="grid grid-cols-[1fr_90px_36px] gap-2">
+                  <Input
+                    placeholder="npr. Merlot"
+                    value={item.grape}
+                    onChange={(e) => {
+                      const next = blend.map((x) => ({ ...x }));
+                      next[index].grape = e.target.value;
+                      setBlend(next);
+                    }}
+                    className="bg-white/80"
+                  />
+                  <Input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="1"
+                    placeholder="%"
+                    value={item.percent}
+                    onChange={(e) => {
+                      const next = blend.map((x) => ({ ...x }));
+                      next[index].percent = e.target.value;
+                      setBlend(normalizeBlendAfterPercentChange(next, index));
+                    }}
+                    className="bg-white/80"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      if (blend.length <= 2) return;
+                      const next = blend.filter((_, i) => i !== index);
+                      setBlend(next.length === 2 ? normalizeBlendAfterPercentChange(next, 0) : next);
+                    }}
+                    className="h-9 px-0"
+                    disabled={blend.length <= 2}
+                    aria-label="Ukloni sortu"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+
+            <div className="text-xs text-slate-600">
+              Ukupno: {Math.round(getBlendTotal(blend) * 10) / 10}% (maks 100%)
+            </div>
+          </div>
+        ) : null}
+
+        <div className="space-y-2">
+          <Label htmlFor={`${idPrefix}vintage`}>Godina</Label>
+          <Input
+            id={`${idPrefix}vintage`}
+            type="number"
+            placeholder={isEdit ? undefined : "npr. 2015"}
+            value={vintage}
+            onChange={(e) => setVintage(e.target.value)}
+            className="bg-white/80"
+            min="1900"
+            max={new Date().getFullYear()}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor={`${idPrefix}region`}>Region</Label>
+          <Input
+            id={`${idPrefix}region`}
+            placeholder={isEdit ? undefined : "npr. Bordeaux, Francuska"}
+            value={region}
+            onChange={(e) => setRegion(e.target.value)}
+            className="bg-white/80"
+          />
+        </div>
+      </div>
+
+      {/* ---------- Ocenjivanje ---------- */}
+      {!isEdit ? (
+        <div className="flex items-center justify-between gap-3 rounded-md border border-amber-900/20 bg-white/60 px-3 py-2">
+          <div className="space-y-0.5">
+            <div className="text-sm font-medium text-amber-950">Oceni odmah</div>
+            <div className="text-xs text-slate-600">Dodaj ocene i beleške pri unosu</div>
+          </div>
+          <Switch checked={includeGrading} onCheckedChange={setIncludeGrading} />
+        </div>
+      ) : null}
+
+      {includeGrading ? (
+        <div className="space-y-4">
+          <h3 className="font-semibold text-amber-950">Ocenjivanje</h3>
+
+          {/* Arome */}
+          {isEdit ? (
+            <AromaSelector
+              categories={AROMA_CATEGORIES}
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+              selectedAromas={selectedAromas}
+              onToggleAroma={toggleAroma}
+              aromaLabels={aromaLabels}
+              startMinimized={true}
+            />
+          ) : (
+            <div className="space-y-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowAromas(!showAromas)}
+                className="w-full justify-between"
+              >
+                <span>Arome {selectedAromas.length > 0 && `(${selectedAromas.length})`}</span>
+                <span>{showAromas ? "▼" : "▶"}</span>
+              </Button>
+
+              {showAromas && (
+                <div className="space-y-3 rounded-md border border-amber-900/20 bg-white/60 p-3">
+                  <AromaCategorySelector
+                    categories={AROMA_CATEGORIES}
+                    selectedCategoryId={selectedCategory}
+                    onSelectCategory={setSelectedCategory}
+                  />
+                  <AromaChipGrid
+                    category={selectedCategoryData}
+                    selectedAromas={selectedAromas}
+                    onToggleAroma={toggleAroma}
+                  />
+                  <div className="pt-1">
+                    <SelectedAromaTags
+                      selectedAromas={selectedAromas}
+                      aromaLabels={aromaLabels}
+                      onRemove={toggleAroma}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Klizači */}
+          {SCORE_CATEGORIES.map((category) => (
+            <div key={category.key} className="space-y-2">
+              <div>
+                <Label className="text-base">{category.label}</Label>
+                <p className="text-xs text-slate-600">{category.description}</p>
+              </div>
+              <div className="flex items-center gap-4">
+                <Slider
+                  value={[scores[category.key]]}
+                  onValueChange={(value: number[]) => setScores({ ...scores, [category.key]: value[0] })}
+                  max={100}
+                  step={1}
+                  className="flex-1"
+                />
+                <span className="text-sm font-semibold min-w-[3ch] text-right">{scores[category.key]}</span>
+              </div>
+            </div>
+          ))}
+
+          {/* Detaljna analiza */}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setShowDetailed(!showDetailed)}
+            className="w-full"
+          >
+            {showDetailed ? "▼ Sakrij Detaljnu Analizu" : "▶ Prikaži Detaljnu Analizu"}
+          </Button>
+
+          {showDetailed && (
+            <div className="space-y-4 pt-2 border-t border-amber-900/20">
+              <h4 className="font-medium text-amber-950">Detaljna Analiza</h4>
+              <DetailedEvalFields value={detailedEval} onChange={setDetailedEval} />
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <Label htmlFor={`${idPrefix}notes`}>Beleške Degustacije</Label>
+            <Textarea
+              id={`${idPrefix}notes`}
+              placeholder="Dodajte vaše beleške ovde..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="min-h-[100px] bg-white/80"
+            />
+          </div>
+        </div>
+      ) : null}
+
+      <div className="flex gap-2 pt-2">
+        <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
+          Otkaži
+        </Button>
+        <Button type="submit" className="flex-1 bg-purple-900 hover:bg-purple-800">
+          {isEdit ? "Potvrdi Ocenu" : "Dodaj Vino"}
+        </Button>
+      </div>
+    </form>
+  );
+}
