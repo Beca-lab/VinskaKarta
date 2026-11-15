@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState, type FormEvent } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Star, Trash2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -21,9 +21,11 @@ import { SelectedAromaTags } from "./aroma/SelectedAromaTags";
 import { DetailedEvalFields } from "./DetailedEvalFields";
 import {
   blendInputsToComponents,
+  computeRating,
   createDefaultDetailedEval,
   createEmptyBlend,
   DEFAULT_SCORES,
+  formatDecimal,
   getBlendTotal,
   normalizeBlendAfterPercentChange,
   SCORE_CATEGORIES,
@@ -45,6 +47,16 @@ function FieldError({ message }: { message?: string }) {
     <p data-error className="text-xs text-red-700">
       {message}
     </p>
+  );
+}
+
+/** Trenutna ukupna ocena, računa se uživo dok se pomeraju klizači. */
+function LiveRating({ scores }: { scores?: GradingScores }) {
+  return (
+    <span className="inline-flex items-center gap-1 text-sm font-bold text-purple-900">
+      <Star className="w-3.5 h-3.5 fill-purple-600 text-purple-600" />
+      {scores ? formatDecimal(computeRating(scores)) : "–"}
+    </span>
   );
 }
 
@@ -355,7 +367,10 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
 
       {includeGrading ? (
         <div className="space-y-4">
-          <h3 className="font-semibold text-amber-950">Ocenjivanje</h3>
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="font-semibold text-amber-950">Ocenjivanje</h3>
+            <LiveRating scores={saveScores ? scores : undefined} />
+          </div>
 
           {/* Arome */}
           {isEdit ? (
@@ -508,6 +523,13 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
               className="min-h-[100px] bg-white/80"
             />
           </div>
+        </div>
+      ) : null}
+
+      {includeGrading && saveScores ? (
+        <div className="flex items-center justify-between gap-2 rounded-md border border-purple-500/40 bg-purple-50 px-3 py-2">
+          <span className="text-sm text-purple-900">Ukupna ocena</span>
+          <LiveRating scores={scores} />
         </div>
       ) : null}
 
