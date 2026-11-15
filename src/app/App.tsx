@@ -9,9 +9,15 @@ import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
 import { AROMA_CATEGORIES, buildAromaLabelIndex, type AromaId } from "../data/aromas";
-import { DEFAULT_LIST_OPTIONS, filterAndSortWines, type RatedFilter, type SortOrder } from "./listing";
+import {
+  computeStats,
+  DEFAULT_LIST_OPTIONS,
+  filterAndSortWines,
+  type RatedFilter,
+  type SortOrder,
+} from "./listing";
 import { loadWines, saveWines } from "./storage";
-import { collectSuggestions, computeRating, type NewWine, type Wine } from "./wine";
+import { collectSuggestions, computeRating, formatDecimal, type NewWine, type Wine } from "./wine";
 
 export default function App() {
   const [wines, setWines] = useState<Wine[]>(() => loadWines() ?? []);
@@ -31,6 +37,7 @@ export default function App() {
 
   const aromaLabels = useMemo(() => buildAromaLabelIndex(AROMA_CATEGORIES), []);
   const suggestions = useMemo(() => collectSuggestions(wines), [wines]);
+  const stats = useMemo(() => computeStats(wines), [wines]);
 
   // Save wines to localStorage whenever they change
   useEffect(() => {
@@ -171,6 +178,12 @@ export default function App() {
                   <Award className="w-6 h-6 sm:w-8 sm:h-8 text-amber-600" />
                 </div>
                 <p className="text-sm sm:text-base text-slate-600">Profesionalna degustacija i evaluacija</p>
+                {stats.total > 0 ? (
+                  <p className="mt-2 text-xs sm:text-sm text-amber-900">
+                    {stats.total} vina · {stats.rated} ocenjeno
+                    {stats.average !== undefined ? ` · prosek ${formatDecimal(stats.average)}` : ""}
+                  </p>
+                ) : null}
               </div>
 
               {/* Filters Section */}
