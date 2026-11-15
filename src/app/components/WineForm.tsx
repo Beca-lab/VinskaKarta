@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState, type FormEvent } from "react";
-import { Plus, Star, Trash2 } from "lucide-react";
+import { Minus, Plus, Star, Trash2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -119,6 +119,11 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
   const [detailedEval, setDetailedEval] = useState<DetailedEvaluation>(
     () => initial?.detailedEval ?? createDefaultDetailedEval()
   );
+
+  const setScore = (key: keyof GradingScores, value: number) => {
+    setScores((prev) => ({ ...prev, [key]: Math.max(0, Math.min(100, value)) }));
+    setRated(true);
+  };
 
   const toggleAroma = (id: AromaId) => {
     setSelectedAromas((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -426,17 +431,34 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
                 <Label className="text-base">{category.label}</Label>
                 <p className="text-xs text-slate-600">{category.description}</p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-9 w-9 p-0 shrink-0 bg-white/70"
+                  aria-label={`${category.label}: smanji za 1`}
+                  disabled={scores[category.key] <= 0}
+                  onClick={() => setScore(category.key, scores[category.key] - 1)}
+                >
+                  <Minus className="w-4 h-4" />
+                </Button>
                 <Slider
                   value={[scores[category.key]]}
-                  onValueChange={(value: number[]) => {
-                    setScores({ ...scores, [category.key]: value[0] });
-                    setRated(true);
-                  }}
+                  onValueChange={(value: number[]) => setScore(category.key, value[0])}
                   max={100}
                   step={1}
                   className="flex-1"
                 />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-9 w-9 p-0 shrink-0 bg-white/70"
+                  aria-label={`${category.label}: povećaj za 1`}
+                  disabled={scores[category.key] >= 100}
+                  onClick={() => setScore(category.key, scores[category.key] + 1)}
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
                 <span className="text-sm font-semibold min-w-[3ch] text-right">{scores[category.key]}</span>
               </div>
             </div>
