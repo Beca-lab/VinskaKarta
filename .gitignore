@@ -16,3 +16,7 @@ Thumbs.db
 
 # Build izlaz (pravi se sa npm run build)
 dist/
+.cursor/
+
+# Privremeni fajlovi
+_tmp_claude/
