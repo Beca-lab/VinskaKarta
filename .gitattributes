@@ -1,0 +1,11 @@
+# Git sam uskladjuje zavrsetke redova (Windows/Linux), da fajlovi ne izgledaju izmenjeno bez razloga
+* text=auto
+
+*.bat text eol=crlf
+gradlew text eol=lf
+
+*.png binary
+*.jpg binary
+*.jar binary
+*.keystore binary
+*.jks binary
