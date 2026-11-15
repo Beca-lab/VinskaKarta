@@ -204,14 +204,12 @@ export function WineForm({ mode, initial, onSubmit, onCancel }: WineFormProps) {
           <RadioGroup
             value={composition}
             onValueChange={(value: string) => setComposition(value as "" | Composition)}
-            className={isEdit ? "grid grid-cols-1 gap-2" : "grid grid-cols-2 gap-3"}
+            className="grid grid-cols-1 gap-2"
           >
-            {isEdit ? (
-              <Label className="flex items-center gap-2 rounded-md border border-amber-900/20 bg-white/70 px-3 py-2">
-                <RadioGroupItem value="" />
-                Nije odabrano
-              </Label>
-            ) : null}
+            <Label className="flex items-center gap-2 rounded-md border border-amber-900/20 bg-white/70 px-3 py-2">
+              <RadioGroupItem value="" />
+              Nije odabrano
+            </Label>
             <Label className="flex items-center gap-2 rounded-md border border-amber-900/20 bg-white/70 px-3 py-2">
               <RadioGroupItem value="Cisto" />
               Čisto
