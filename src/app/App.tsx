@@ -276,7 +276,7 @@ export default function App() {
 
               {/* Footer Note */}
               <div className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-slate-500">
-                Kliknite na bilo koju karticu da ocenite vino
+                Dodirnite karticu da izmenite ili ocenite vino
               </div>
             </div>
           </div>
